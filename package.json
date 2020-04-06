@@ -1,0 +1,24 @@
+{
+  "name": "GeneralaScord",
+  "version": "1.0.0",
+  "description": "Generala Bot for Discord",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maxi-F/GeneralaScord.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Maxi-F/GeneralaScord/issues"
+  },
+  "homepage": "https://github.com/Maxi-F/GeneralaScord#readme",
+  "dependencies": {
+    "discord.js": "^12.1.1",
+    "dotenv": "^8.2.0"
+  }
+}
