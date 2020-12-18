@@ -1,6 +1,4 @@
-const { commands } = require("./config")
+const { commands } = require("./config");
+const { notFound } = require('./commandFunctions/notFound');
 
-module.exports = {
-  end: [commands.end],
-  play: [commands.play],
-};
+module.exports = (command, message) => commands[command] ? commands[command](message) : notFound(command, message);

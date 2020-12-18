@@ -5,7 +5,6 @@ const commands = {
 
 const playerCommands = {
   roll: "tirar",
-  
 }
 
 module.exports = {
