@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Maxi-F/GeneralaScord#readme",
   "dependencies": {
     "discord.js": "^12.1.1",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.6"
   }
 }
