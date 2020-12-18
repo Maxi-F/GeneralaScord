@@ -1,11 +1,10 @@
-const commands = {
-  end: "terminar",
-  play: "jugar"
-};
+const { endGame, playGame, rollDice } = require('./commands');
 
-const playerCommands = {
-  roll: "tirar",
-}
+const commands = {
+  end: endGame,
+  play: playGame,
+  roll: rollDice
+};
 
 module.exports = {
   commands
