@@ -1,36 +1,25 @@
-const { games, createPlayer } = require('./game');
+const { startGame } = require('./game');
 const { GAME_STATUS } = require('../constants/status');
 const { isBot } = require('../utils/bot');
 
 const CREATION_REACTIONS = [
   {
     reaction: "🤚",
-    action: (game, reaction) => {
-      game.handReactions = reaction.users.cache.array().map(user => user.id)
+    action: (game, gameMessage, reaction) => {
+      game.handReactions = reaction.users.cache.array()
       // console.log(game.handReactions)
     }
   },
   {
     reaction: "▶",
-    action: (game, reaction) => {
-      const newPlayers = game.handReactions
-        .filter(userId => !isBot(userId) && userId !== game.creator)
-        .map(userId => createPlayer(userId));
-      game.players = [...game.players, ...newPlayers]
-      game.status = GAME_STATUS.INGAME;
-      delete game.handReactions;
-
-      // Modify message that the game has started
-
-      console.log(game)
-    }
+    action: startGame
   }
 ]
 
-const creationReactionListener = (game, reaction) => {
+const creationReactionListener = (game, reaction, gameMessage) => {
   console.log(game)
   const selectedReaction = CREATION_REACTIONS.find(({ reaction: type }) => reaction.emoji.name === type);
-  return game.status === GAME_STATUS.CREATION && selectedReaction && selectedReaction.action(game, reaction)
+  return game.status === GAME_STATUS.CREATION && selectedReaction && selectedReaction.action(game, gameMessage, reaction)
 }
 
 const creationReactionFilter = (reaction, user) => {

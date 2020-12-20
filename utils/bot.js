@@ -1,5 +1,5 @@
 const bot = require('../bot');
 
-const isBot = (user) => bot.user.id === user
+const isBot = (userId) => bot.user.id === userId
 
 module.exports = { isBot }

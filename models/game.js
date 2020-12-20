@@ -1,10 +1,11 @@
-const { sendMessageTo } = require('../utils/messages');
+const { sendMessageTo, createEmbed } = require('../utils/messages');
 const { GAME_STATUS } = require('../constants/status');
+const { isBot } = require('../utils/bot');
 
 const games = [];
 
-const createPlayer = playerId => ({
-  id: playerId,
+const createPlayer = player => ({
+  user: player,
   table: {
     ones: undefined,
     twos: undefined,
@@ -28,7 +29,7 @@ const createEmptyGame = (author) => {
       handReactions: [author],
       creator: author,
       playerTurn: {
-        id: author,
+        player: author,
         rolledTimes: 0,
         savedDices: []
       },
@@ -38,6 +39,22 @@ const createEmptyGame = (author) => {
     return game;
   }
   // console.log(games);
+}
+
+const startGame = (game, gameMessage) => {
+  const newPlayers = game.handReactions
+    .filter(user => !isBot(user.id) && user.id !== game.creator.id)
+    .map(user => createPlayer(user));
+  game.players = [...game.players, ...newPlayers]
+  game.status = GAME_STATUS.INGAME;
+  delete game.handReactions;
+
+  gameMessage.edit({embed: createEmbed(`Game is starting!`, {
+    fields: [{
+      name: `First player is: ${game.playerTurn.player.username}`,
+      value: 'Roll the dice with &roll!'
+    }]
+  })});
 }
 
 const sendGameMessage = async (message) => {
@@ -63,4 +80,4 @@ const sendGameMessage = async (message) => {
   return gameCreationMessage;
 }
 
-module.exports = { games, sendGameMessage, createEmptyGame, createPlayer }
+module.exports = { games, sendGameMessage, createEmptyGame, createPlayer, startGame }
