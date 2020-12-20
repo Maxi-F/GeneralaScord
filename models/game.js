@@ -22,17 +22,22 @@ const createPlayer = playerId => ({
 })
 
 const createEmptyGame = (author) => {
-  if(!games.some(game => game.creator === author)) return games.push({
-    players: [createPlayer(author)],
-    handReactions: [author],
-    creator: author,
-    playerTurn: {
-      id: author,
-      rolledTimes: 0,
-      savedDices: []
-    },
-    status: GAME_STATUS.CREATION
-  })
+  if(!games.some(game => game.creator === author)) {
+    const game = {
+      players: [createPlayer(author)],
+      handReactions: [author],
+      creator: author,
+      playerTurn: {
+        id: author,
+        rolledTimes: 0,
+        savedDices: []
+      },
+      status: GAME_STATUS.CREATION
+    }
+    games.push(game);
+    return game;
+  }
+  // console.log(games);
 }
 
 const sendGameMessage = async (message) => {

@@ -13,4 +13,4 @@ const sendMessageTo = (channelId, message, embedInfo = {}) => {
 }
 
 
-module.exports = { sendMessageTo }
+module.exports = { sendMessageTo, createEmbed }

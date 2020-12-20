@@ -1,5 +1,5 @@
 const { roll } = require('../utils/dice');
-const { sendMessageTo } = require('../utils/messages');
+const { sendMessageTo, createEmbed } = require('../utils/messages');
 const { options } = require('../utils/generala')
 const { sendGameMessage, createEmptyGame } = require('../models/game');
 const { creationReactionListener, creationReactionFilter } = require('../models/reactions');
@@ -13,9 +13,14 @@ const rollDice = (message)   => {
 
 const createGame = async (message) => {
   const game = createEmptyGame(message.author.id);
+//   console.log("juego:", game)
   const gameCreationMessage = await sendGameMessage(message);
   const creationCollector = gameCreationMessage.createReactionCollector(creationReactionFilter, { time: 40000 });
+  
   creationCollector.on('collect', reaction => creationReactionListener(game, reaction))
+  creationCollector.on('end', () => {
+      gameCreationMessage.edit({embed: createEmbed(`Game is starting!`)})
+  })
 }
 
 const playGame = (message)   => sendMessageTo(message.channel.id, 'play game!')
