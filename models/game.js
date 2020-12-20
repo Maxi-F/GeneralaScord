@@ -1,6 +1,41 @@
 const { sendMessageTo } = require('../utils/messages');
+const { GAME_STATUS } = require('../constants/status');
 
-const createGameMessage = async (message) => {
+const games = [];
+
+const createPlayer = playerId => ({
+  id: playerId,
+  table: {
+    ones: undefined,
+    twos: undefined,
+    threes: undefined,
+    fours: undefined,
+    fives: undefined,
+    sixes: undefined,
+    double: undefined,
+    poker: undefined,
+    straight: undefined,
+    full: undefined,
+    generala: undefined,
+    doubleGenerala: undefined
+  }
+})
+
+const createEmptyGame = (author) => {
+  if(!games.some(game => game.creator === author)) return games.push({
+    players: [createPlayer(author)],
+    handReactions: [author],
+    creator: author,
+    playerTurn: {
+      id: author,
+      rolledTimes: 0,
+      savedDices: []
+    },
+    status: GAME_STATUS.CREATION
+  })
+}
+
+const sendGameMessage = async (message) => {
   const gameCreationMessage = await sendMessageTo(message.channel.id, `${message.author.username} is creating a game!`, {
     fields: [{ 
       name: 'Join the game!',
@@ -23,4 +58,4 @@ const createGameMessage = async (message) => {
   return gameCreationMessage;
 }
 
-module.exports = { createGameMessage }
+module.exports = { games, sendGameMessage, createEmptyGame, createPlayer }
