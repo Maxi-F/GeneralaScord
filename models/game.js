@@ -1,4 +1,4 @@
-const { sendMessageTo, createEmbed } = require('../utils/messages');
+const { sendMessageTo, sendTurnMessage, createEmbed } = require('../utils/messages');
 const { GAME_STATUS } = require('../constants/status');
 const { isBot } = require('../utils/bot');
 
@@ -23,13 +23,13 @@ const createPlayer = player => ({
 })
 
 const createEmptyGame = (author) => {
-  if(!games.some(game => game.creator === author)) {
+  if (!games.some(game => game.creator === author)) {
     const game = {
       players: [createPlayer(author)],
       handReactions: [author],
       creator: author,
       playerTurn: {
-        player: author,
+        user: author,
         rolledTimes: 0,
         savedDices: []
       },
@@ -38,8 +38,9 @@ const createEmptyGame = (author) => {
     games.push(game);
     return game;
   }
-  // console.log(games);
 }
+
+const getGameFrom = (userId) => games.find(game => game.players.some(player => player.user.id === userId))
 
 const startGame = (game, gameMessage) => {
   const newPlayers = game.handReactions
@@ -49,35 +50,13 @@ const startGame = (game, gameMessage) => {
   game.status = GAME_STATUS.INGAME;
   delete game.handReactions;
 
-  gameMessage.edit({embed: createEmbed(`Game is starting!`, {
-    fields: [{
-      name: `First player is: ${game.playerTurn.player.username}`,
-      value: 'Roll the dice with &roll!'
-    }]
-  })});
+  console.log(`Empezando el Juego de ${game.creator.username}.`, `Jugadores: ${game.players.map(player => player.user.username)}`)
+
+  gameMessage.edit({
+    embed: createEmbed(`Game has started!`),
+  });
+
+  return sendTurnMessage(gameMessage.channel.id, game.playerTurn.user)
 }
 
-const sendGameMessage = async (message) => {
-  const gameCreationMessage = await sendMessageTo(message.channel.id, `${message.author.username} is creating a game!`, {
-    fields: [{ 
-      name: 'Join the game!',
-      value: 'React with 🤚',
-      inline: true
-    }, 
-    {
-			name: '\u200b',
-			value: '\u200b',
-			inline: true,
-    }, 
-    {
-      name: 'Start the game!',
-      value: 'Start with ▶',
-      inline: true
-    }]
-  })
-  gameCreationMessage.react('🤚');
-  gameCreationMessage.react('▶');
-  return gameCreationMessage;
-}
-
-module.exports = { games, sendGameMessage, createEmptyGame, createPlayer, startGame }
+module.exports = { games, createEmptyGame, createPlayer, startGame, getGameFrom }
