@@ -18,7 +18,7 @@ const addStraight = (result, opts) => {
 const addRest = (opts, numericOpts) => {
     let two = 0;
     let three = 0;
-    const turbio = {
+    const countOptions = {
         1: () => {},
         2: () => two++,
         3: () => three++,
@@ -27,7 +27,7 @@ const addRest = (opts, numericOpts) => {
     };
     
     numericOpts.forEach(opt => {
-        turbio[opt.count]();
+        countOptions[opt.count]();
     });
 
     if (two && three) {
