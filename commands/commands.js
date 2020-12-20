@@ -1,6 +1,7 @@
 const { roll } = require('../utils/dice');
 const { sendMessageTo } = require('../utils/messages');
 const { options } = require('../utils/generala')
+const { createGameMessage } = require('../models/game');
 
 const notFound = (command, message) => sendMessageTo(message.channel.id, `${command} is not a command.`)
 
@@ -9,7 +10,9 @@ const rollDice = (message)   => {
     return sendMessageTo(message.channel.id, `rolled dice: ${result}\noptions: ${options(result)}`)
 }
 
-const createGame = (message) => sendMessageTo(message.channel.id, 'Hello and welcome to GeneralaScord!\n its fun very good lmao REACT WITH POGGERS')
+const createGame = async (message) => {
+  const gameCreationMessage = await createGameMessage(message);
+}
 
 const playGame = (message)   => sendMessageTo(message.channel.id, 'play game!')
 

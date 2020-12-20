@@ -7,9 +7,9 @@ const createEmbed = (message, embedInfo) => ({
   ...embedInfo
 })
 
-const sendMessageTo = async (channelId, message, embedInfo = {}) => {
+const sendMessageTo = (channelId, message, embedInfo = {}) => {
   const channel = bot.channels.cache.get(channelId);
-  return await channel.send({ embed: createEmbed(message, embedInfo) })
+  return channel.send({ embed: createEmbed(message, embedInfo) })
 }
 
 
