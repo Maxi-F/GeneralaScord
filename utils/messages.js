@@ -1,16 +1,15 @@
-const bot = require('../bot.js')
+const bot = require('../bot.js');
 
 const createEmbed = (message, embedInfo) => ({
   color: '#0099ff',
   title: 'GeneralaScord',
   description: message,
-  ...embedInfo
-})
+  ...embedInfo,
+});
 
 const sendMessageTo = (channelId, message, embedInfo = {}) => {
   const channel = bot.channels.cache.get(channelId);
-  return channel.send({ embed: createEmbed(message, embedInfo) })
-}
+  return channel.send({ embed: createEmbed(message, embedInfo) });
+};
 
-
-module.exports = { sendMessageTo, createEmbed }
+module.exports = { sendMessageTo, createEmbed };

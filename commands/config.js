@@ -4,9 +4,9 @@ const commands = {
   end: endGame,
   play: playGame,
   roll: rollDice,
-  create: createGame
+  create: createGame,
 };
 
 module.exports = {
-  commands
+  commands,
 };
