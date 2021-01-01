@@ -1,9 +1,12 @@
 {
-  "name": "GeneralaScord",
+  "name": "generala-scord",
   "version": "1.0.0",
   "description": "Generala Bot for Discord",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
+    "start": "nodemon index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,6 +26,11 @@
     "nodemon": "^2.0.6"
   },
   "devDependencies": {
-    "nodemon": "^2.0.6"
+    "eslint": "^7.16.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.0",
+    "nodemon": "^2.0.6",
+    "prettier": "^2.2.1"
   }
 }

@@ -5,13 +5,13 @@ const createEmbed = (message, embedInfo) => ({
   color: '#0099ff',
   title: 'GeneralaScord',
   description: message,
-  ...embedInfo
-})
+  ...embedInfo,
+});
 
 const sendMessageTo = (channelId, message, embedInfo = {}) => {
   const channel = bot.channels.cache.get(channelId);
-  return channel.send({ embed: createEmbed(message, embedInfo) })
-}
+  return channel.send({ embed: createEmbed(message, embedInfo) });
+};
 
 const sendTurnMessage = (channelId, player) => sendMessageTo(channelId, `Next turn: ${player}`)
 

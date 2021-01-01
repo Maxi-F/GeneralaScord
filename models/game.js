@@ -5,7 +5,7 @@ const { isBot } = require('../utils/bot');
 
 const games = [];
 
-const createPlayer = player => ({
+const createPlayer = (player) => ({
   user: player,
   table: {
     [TABLE_OPTIONS.ONES]: undefined,
@@ -32,10 +32,10 @@ const createEmptyGame = (author) => {
       playerTurn: {
         user: author,
         rolledTimes: 0,
-        savedDices: []
+        savedDices: [],
       },
-      status: GAME_STATUS.CREATION
-    }
+      status: GAME_STATUS.CREATION,
+    };
     games.push(game);
     return game;
   }
@@ -47,9 +47,9 @@ const getGameFrom = (userId) => games.find(game => game.players.some(player => p
 
 const startGame = (game, gameMessage) => {
   const newPlayers = game.handReactions
-    .filter(user => !isBot(user.id) && user.id !== game.creator.id)
-    .map(user => createPlayer(user));
-  game.players = [...game.players, ...newPlayers]
+    .filter((user) => !isBot(user.id) && user.id !== game.creator.id)
+    .map((user) => createPlayer(user));
+  game.players = [...game.players, ...newPlayers];
   game.status = GAME_STATUS.INGAME;
   delete game.handReactions;
 

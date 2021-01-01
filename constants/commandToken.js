@@ -1,1 +1,1 @@
-module.exports = { COMMAND_TOKEN: '&' }
+module.exports = { COMMAND_TOKEN: '&' };

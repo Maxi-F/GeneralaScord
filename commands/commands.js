@@ -5,7 +5,8 @@ const { createEmptyGame, startGame, getGameFrom } = require('../models/game');
 const { creationReactionListener, creationReactionFilter, rollReactionFilter, addBlockedRoll, removeBlockedRoll } = require('../models/reactions');
 const { GAME_STATUS } = require('../constants/status');
 
-const notFound = (command, message) => sendMessageTo(message.channel.id, `${command} is not a command.`)
+const notFound = (command, message) =>
+  sendMessageTo(message.channel.id, `${command} is not a command.`);
 
 const rollDice = async (message) => {
   const game = getGameFrom(message.author.id);
