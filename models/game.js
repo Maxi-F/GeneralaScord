@@ -1,4 +1,4 @@
-const { sendMessageTo, sendTurnMessage, createEmbed } = require('../utils/messages');
+const { sendTurnMessage, createEmbed } = require('../utils/messages');
 const { GAME_STATUS } = require('../constants/status');
 const { TABLE_OPTIONS } = require('../constants/tableOptions');
 const { isBot } = require('../utils/bot');
@@ -19,12 +19,12 @@ const createPlayer = (player) => ({
     [TABLE_OPTIONS.STRAIGHT]: undefined,
     [TABLE_OPTIONS.FULL]: undefined,
     [TABLE_OPTIONS.GENERALA]: undefined,
-    [TABLE_OPTIONS.DOUBLE_GENERALA]: undefined
-  }
-})
+    [TABLE_OPTIONS.DOUBLE_GENERALA]: undefined,
+  },
+});
 
 const createEmptyGame = (author) => {
-  if (!games.some(game => game.creator === author)) {
+  if (!games.some((game) => game.creator === author)) {
     const game = {
       players: [createPlayer(author)],
       handReactions: [author],
@@ -39,11 +39,19 @@ const createEmptyGame = (author) => {
     games.push(game);
     return game;
   }
-}
+};
 
-const createSavedDices = () => Array.apply(null, Array(5)).map(() => ({diceResult: undefined, saved: false, fixed: false}));
+const createSavedDices = () =>
+  Array.apply(null, Array(5)).map(() => ({
+    diceResult: undefined,
+    saved: false,
+    fixed: false,
+  }));
 
-const getGameFrom = (userId) => games.find(game => game.players.some(player => player.user.id === userId))
+const getGameFrom = (userId) =>
+  games.find((game) =>
+    game.players.some((player) => player.user.id === userId)
+  );
 
 const startGame = (game, gameMessage) => {
   const newPlayers = game.handReactions
@@ -53,15 +61,24 @@ const startGame = (game, gameMessage) => {
   game.status = GAME_STATUS.INGAME;
   delete game.handReactions;
 
-  console.log(`Empezando el Juego de ${game.creator.username}.`, `Jugadores: ${game.players.map(player => player.user.username)}`)
+  console.log(
+    `Empezando el Juego de ${game.creator.username}.`,
+    `Jugadores: ${game.players.map((player) => player.user.username)}`
+  );
 
   gameMessage.edit({
-    embed: createEmbed(`Game has started!`),
+    embed: createEmbed('Game has started!'),
   });
 
   game.playerTurn.savedDices = createSavedDices();
 
-  return sendTurnMessage(gameMessage.channel.id, game.playerTurn.user)
-}
+  return sendTurnMessage(gameMessage.channel.id, game.playerTurn.user);
+};
 
-module.exports = { games, createEmptyGame, createPlayer, startGame, getGameFrom }
+module.exports = {
+  games,
+  createEmptyGame,
+  createPlayer,
+  startGame,
+  getGameFrom,
+};
