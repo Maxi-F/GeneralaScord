@@ -111,7 +111,7 @@ const calculateFinishedGameTable = (game) =>
         0
       ),
     }))
-    .sort((aPlayer, anotherPlayer) => aPlayer.points - anotherPlayer.points);
+    .sort((aPlayer, anotherPlayer) => anotherPlayer.points - aPlayer.points);
 
 module.exports = {
   games,

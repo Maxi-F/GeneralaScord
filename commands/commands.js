@@ -7,6 +7,7 @@ const {
   sendTurnMessage,
   sendActualTable,
   sendGameEndMessage,
+  sendNotInGame,
 } = require('../utils/messages');
 const { options, calculatePoints } = require('../utils/generala');
 const {
@@ -84,6 +85,8 @@ const rollDice = async (message) => {
     rollReactionCollector.on('remove', (reaction) =>
       removeBlockedRoll(game, reaction)
     );
+  } else {
+    return sendNotInGame(message);
   }
 };
 
@@ -118,6 +121,8 @@ const getTable = (message) => {
   if (game && game.status === GAME_STATUS.INGAME) {
     const player = findPlayer(game, message.author.id);
     return sendActualTable(player, message);
+  } else {
+    return sendNotInGame(message);
   }
 };
 
@@ -127,11 +132,7 @@ const endGame = (message) => sendMessageTo(message.channel.id, 'game ended');
 
 const addOption = (option) => (message) => {
   const game = getGameFrom(message.author.id);
-  if (
-    game &&
-    game.status === GAME_STATUS.INGAME &&
-    isMyTurn(message.author.id, game)
-  ) {
+  if (game && game.status === GAME_STATUS.INGAME) {
     if (!isMyTurn(message.author.id, game))
       return sendMessageTo(
         message.channel.id,
@@ -173,6 +174,8 @@ const addOption = (option) => (message) => {
 
     passTurn(game, player);
     return sendTurnMessage(message.channel.id, game.playerTurn.user);
+  } else {
+    return sendNotInGame(message);
   }
 };
 

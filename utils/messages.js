@@ -15,6 +15,9 @@ const sendMessageTo = (channelId, message, embedInfo = {}) => {
   return channel.send({ embed: createEmbed(message, embedInfo) });
 };
 
+const sendNotInGame = (message) =>
+  sendMessageTo(message.channel.id, `${message.author}, you are not in game!`);
+
 const sendTurnMessage = (channelId, player) =>
   sendMessageTo(channelId, `Next turn: ${player}`);
 
@@ -48,11 +51,13 @@ const sendGameMessage = async (message) => {
 };
 
 const sendActualTable = (player, message) => {
-  return sendMessageTo(message.channel.id, `${player.user}'s table:`, {
-    fields: Object.entries(player.table).map(([option, value]) => ({
-      name: option,
-      value,
-    })),
+  return message.author.send({
+    embed: createEmbed('Here is your table!', {
+      fields: Object.entries(player.table).map(([option, value]) => ({
+        name: option,
+        value: value === undefined ? 'not used yet!' : value,
+      })),
+    }),
   });
 };
 
@@ -126,6 +131,7 @@ module.exports = {
   sendTurnMessage,
   sendActualTable,
   sendGameMessage,
+  sendNotInGame,
   sendGameEndMessage,
   sendRollMessage,
   reactNumbers,
