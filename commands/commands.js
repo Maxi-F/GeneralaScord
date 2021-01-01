@@ -27,12 +27,21 @@ const notFound = (command, message) =>
 
 const rollDice = async (message) => {
   const game = getGameFrom(message.author.id);
-  if (
-    game &&
-    game.status === GAME_STATUS.INGAME &&
-    isMyTurn(message.author.id, game)
-  ) {
+  if (game && game.status === GAME_STATUS.INGAME) {
+    if (!isMyTurn(message.author.id, game))
+      return sendMessageTo(
+        message.channel.id,
+        `${message.author.username}, it is not your turn!`
+      );
+
+    if (game.playerTurn.rolledTimes === 3)
+      return sendMessageTo(
+        message.channel.id,
+        `${message.author.username}, you already rolled 3 times`
+      );
+
     let result = roll(5).sort();
+    game.playerTurn.rolledTimes++;
     game.playerTurn.savedDices.forEach((dice, index) => {
       if (!dice.saved) {
         dice.diceResult = result[index];
@@ -106,12 +115,33 @@ const addOption = (option) => (message) => {
     game.status === GAME_STATUS.INGAME &&
     isMyTurn(message.author.id, game)
   ) {
+    if (!isMyTurn(message.author.id, game))
+      return sendMessageTo(
+        message.channel.id,
+        `${message.author.username}, it is not your turn!`
+      );
+
+    if (game.playerTurn.rolledTimes === 0)
+      return sendMessageTo(
+        message.channel.id,
+        `${message.author.username}, you did not roll yet!`
+      );
+
+    const result = game.playerTurn.savedDices.map((dice) => dice.diceResult);
+    const resultOptions = options(result);
+
+    if (!resultOptions.some((resultOption) => resultOption === option))
+      return sendMessageTo(
+        message.channel.id,
+        `${message.author.username}, that option is not valid!`
+      );
+
     const player = findPlayer(game, message.author.id);
     player.table[option] = calculatePoints(
       option,
-      game.playerTurn.savedDices.map((dice) => dice.diceResult)
+      game.playerTurn.savedDices.map((dice) => dice.diceResult),
+      game.playerTurn.rolledTimes === 1
     );
-    console.log(player.table);
   }
 };
 

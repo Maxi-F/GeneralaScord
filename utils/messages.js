@@ -46,8 +46,6 @@ const sendGameMessage = async (message) => {
 };
 
 const sendRollMessage = async (message, game, result, options) => {
-  console.log(options);
-
   const rollMessage = await sendMessageTo(
     message.channel.id,
     `${game.playerTurn.user} rolled!`,
