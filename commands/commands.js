@@ -5,6 +5,8 @@ const {
   sendRollMessage,
   reactNumbers,
   sendTurnMessage,
+  sendActualTable,
+  sendGameEndMessage,
 } = require('../utils/messages');
 const { options, calculatePoints } = require('../utils/generala');
 const {
@@ -15,6 +17,8 @@ const {
   findPlayer,
   usedOptions,
   passTurn,
+  isGameFinished,
+  calculateFinishedGameTable,
 } = require('../models/game');
 const {
   creationReactionListener,
@@ -56,8 +60,6 @@ const rollDice = async (message) => {
 
     const usedOpts = usedOptions(game, message.author.id);
     let resultOptions = options(result, usedOpts);
-
-    console.log(resultOptions);
 
     const rollMessage = await sendRollMessage(
       message,
@@ -111,6 +113,14 @@ const createGame = async (message) => {
   );
 };
 
+const getTable = (message) => {
+  const game = getGameFrom(message.author.id);
+  if (game && game.status === GAME_STATUS.INGAME) {
+    const player = findPlayer(game, message.author.id);
+    return sendActualTable(player, message);
+  }
+};
+
 const playGame = (message) => sendMessageTo(message.channel.id, 'play game!');
 
 const endGame = (message) => sendMessageTo(message.channel.id, 'game ended');
@@ -155,6 +165,12 @@ const addOption = (option) => (message) => {
       );
     }
 
+    if (isGameFinished(game)) {
+      const gameTable = calculateFinishedGameTable(game);
+      game.status = GAME_STATUS.FINISHED;
+      return sendGameEndMessage(message, gameTable);
+    }
+
     passTurn(game, player);
     return sendTurnMessage(message.channel.id, game.playerTurn.user);
   }
@@ -166,5 +182,6 @@ module.exports = {
   playGame,
   endGame,
   createGame,
+  getTable,
   addOption,
 };

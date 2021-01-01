@@ -3,6 +3,7 @@ const {
   playGame,
   rollDice,
   createGame,
+  getTable,
   addOption,
 } = require('./commands');
 const { TABLE_OPTIONS } = require('../constants/tableOptions');
@@ -18,6 +19,7 @@ const commands = {
   play: playGame,
   roll: rollDice,
   create: createGame,
+  table: getTable,
   ...rollOptionsCommands,
 };
 

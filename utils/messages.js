@@ -47,6 +47,27 @@ const sendGameMessage = async (message) => {
   return gameCreationMessage;
 };
 
+const sendActualTable = (player, message) => {
+  return sendMessageTo(message.channel.id, `${player.user}'s table:`, {
+    fields: Object.entries(player.table).map(([option, value]) => ({
+      name: option,
+      value,
+    })),
+  });
+};
+
+const sendGameEndMessage = (message, gameTable) =>
+  sendMessageTo(
+    message.channel.id,
+    `The game has ended! ${gameTable[0].user} wins!`,
+    {
+      fields: gameTable.map((player) => ({
+        name: `${player.user.username} points:`,
+        value: player.points,
+      })),
+    }
+  );
+
 const sendRollMessage = async (message, game, result, options, usedOptions) => {
   const useOptions = options
     .map(
@@ -79,13 +100,12 @@ const sendRollMessage = async (message, game, result, options, usedOptions) => {
           // inline: true
         })),
         {
-          name:
-            'Options to use (react with &<option> to use the desired option)',
+          name: 'Options to use (use &<option> to use the desired option)',
           value: useOptions ? useOptions : 'There are no options to use!',
         },
         {
           name:
-            'Options to cross out (react with &<option> to cross out the desired option)',
+            'Options to cross out (use &<option> to cross out the desired option)',
           value: crossOptions ? crossOptions : 'There are no options to cross!',
         },
       ],
@@ -104,7 +124,9 @@ module.exports = {
   sendMessageTo,
   createEmbed,
   sendTurnMessage,
+  sendActualTable,
   sendGameMessage,
+  sendGameEndMessage,
   sendRollMessage,
   reactNumbers,
 };
