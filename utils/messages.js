@@ -39,17 +39,18 @@ const sendGameMessage = async (message) => {
 }
 
 const sendRollMessage = async (message, game, result, options) => {
+  console.log(options);
+
   const rollMessage = await sendMessageTo(message.channel.id, `${game.playerTurn.user} rolled!`, {
-    fields: [{
-      name: 'rolled dice: ',
-      value: 'Pog'
-      // value: `\`\`\`${result.join(', ')}\`\`\``
-    },
+    fields: [
     ...result.map((val, index) => ({
       name: `Dice ${index + 1}: \`\`\`${val}\`\`\` `,
       value: game.playerTurn.savedDices[index].fixed ? `This dice is fixed` : `React with ${ROLL_REACTIONS[index]} to keep the dice!`,
       // inline: true
-    }))]
+    })), {
+      name: 'Options (react with &<option> to use the desired option)',
+      value: options.join(', ')
+    }]
   })
   return rollMessage;
 }

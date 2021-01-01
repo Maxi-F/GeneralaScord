@@ -32,37 +32,24 @@ const rollReactionFilter = (turnId) => (reaction, user) => {
   return !isBot(user.id) && turnId === user.id && ROLL_REACTIONS.some(aReaction => aReaction === reaction.emoji.name);
 }
 
-const addBlockedRoll = (game, reaction) => {
-  // console.log(reaction.message.embeds);
+const manageRoll = (value, createMessage) => (game, reaction) => {
   const diceIndex = ROLL_REACTIONS.findIndex(emoji => reaction.emoji.name === emoji);
   
   // Este if esta solo para asegurar que no este guardado el dado desde antes.
   if(!game.playerTurn.savedDices[diceIndex].fixed) {
     const newEmbed = reaction.message.embeds[0];
-    game.playerTurn.savedDices[diceIndex].saved = true;
+    game.playerTurn.savedDices[diceIndex].saved = value;
 
     // console.log(newEmbed.fields)
-    newEmbed.fields[diceIndex + 1].value = "You are keeping this dice" 
+    newEmbed.fields[diceIndex].value = createMessage(ROLL_REACTIONS[diceIndex])
     // newEmbed.fields[diceIndex + 1].name = `Dice ${diceIndex + 1}: \`\`\`${ROLL_REACTIONS[diceIndex]}\`\`\` :white_check_mark:`
-    console.log(game)
+
     reaction.message.edit(newEmbed)
   }
 }
 
-const removeBlockedRoll = (game, reaction) => {
-  const diceIndex = ROLL_REACTIONS.findIndex(emoji => reaction.emoji.name === emoji)
+const addBlockedRoll = manageRoll(true, () => "You are keeping this dice")
 
-  if(!game.playerTurn.savedDices[diceIndex].fixed) {
-    const newEmbed = reaction.message.embeds[0]
-    game.playerTurn.savedDices[diceIndex].saved = false;
-
-    // console.log(newEmbed.fields)
-    newEmbed.fields[diceIndex + 1].value = `React with ${ROLL_REACTIONS[diceIndex]} to keep the dice!`
-    // newEmbed.fields[diceIndex + 1].name = `Dice ${diceIndex + 1}: \`\`\`${ROLL_REACTIONS[diceIndex]}\`\`\``
-
-    console.log(game)
-    reaction.message.edit(newEmbed)
-  }
-}
+const removeBlockedRoll = manageRoll(false, (dice) => `React with ${dice} to keep the dice!`);
 
 module.exports = { creationReactionFilter, creationReactionListener, rollReactionFilter, addBlockedRoll, removeBlockedRoll }

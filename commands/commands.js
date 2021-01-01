@@ -20,7 +20,6 @@ const rollDice = async (message) => {
       }
     })
 
-    console.log(game.playerTurn.savedDices)
     let resultOptions = options(result);
 
     const rollMessage = await sendRollMessage(message, game, result, resultOptions)
@@ -52,4 +51,6 @@ const playGame = (message) => sendMessageTo(message.channel.id, 'play game!')
 
 const endGame = (message) => sendMessageTo(message.channel.id, 'game ended')
 
-module.exports = { notFound, rollDice, playGame, endGame, createGame }
+const addOption = (option) => message => sendMessageTo(message.channel.id, `selected ${option}`);
+
+module.exports = { notFound, rollDice, playGame, endGame, createGame, addOption }

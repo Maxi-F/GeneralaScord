@@ -1,5 +1,6 @@
 const { sendMessageTo, sendTurnMessage, createEmbed } = require('../utils/messages');
 const { GAME_STATUS } = require('../constants/status');
+const { TABLE_OPTIONS } = require('../constants/tableOptions');
 const { isBot } = require('../utils/bot');
 
 const games = [];
@@ -7,18 +8,18 @@ const games = [];
 const createPlayer = player => ({
   user: player,
   table: {
-    ones: undefined,
-    twos: undefined,
-    threes: undefined,
-    fours: undefined,
-    fives: undefined,
-    sixes: undefined,
-    double: undefined,
-    poker: undefined,
-    straight: undefined,
-    full: undefined,
-    generala: undefined,
-    doubleGenerala: undefined
+    [TABLE_OPTIONS.ONES]: undefined,
+    [TABLE_OPTIONS.TWOS]: undefined,
+    [TABLE_OPTIONS.THREES]: undefined,
+    [TABLE_OPTIONS.FOURS]: undefined,
+    [TABLE_OPTIONS.FIVES]: undefined,
+    [TABLE_OPTIONS.SIXES]: undefined,
+    [TABLE_OPTIONS.DOUBLE]: undefined,
+    [TABLE_OPTIONS.POKER]: undefined,
+    [TABLE_OPTIONS.STRAIGHT]: undefined,
+    [TABLE_OPTIONS.FULL]: undefined,
+    [TABLE_OPTIONS.GENERALA]: undefined,
+    [TABLE_OPTIONS.DOUBLE_GENERALA]: undefined
   }
 })
 
