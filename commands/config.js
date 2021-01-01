@@ -8,8 +8,8 @@ const {
 const { TABLE_OPTIONS } = require('../constants/tableOptions');
 
 const rollOptionsCommands = Object.assign(
-  ...Object.keys(TABLE_OPTIONS).map((optionKey) => ({
-    [optionKey.toLowerCase()]: addOption(TABLE_OPTIONS[optionKey]),
+  ...Object.values(TABLE_OPTIONS).map((option) => ({
+    [option]: addOption(option),
   }))
 );
 

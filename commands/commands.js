@@ -4,6 +4,7 @@ const {
   sendGameMessage,
   sendRollMessage,
   reactNumbers,
+  sendTurnMessage,
 } = require('../utils/messages');
 const { options, calculatePoints } = require('../utils/generala');
 const {
@@ -12,6 +13,8 @@ const {
   getGameFrom,
   isMyTurn,
   findPlayer,
+  usedOptions,
+  passTurn,
 } = require('../models/game');
 const {
   creationReactionListener,
@@ -51,13 +54,17 @@ const rollDice = async (message) => {
       }
     });
 
-    let resultOptions = options(result);
+    const usedOpts = usedOptions(game, message.author.id);
+    let resultOptions = options(result, usedOpts);
+
+    console.log(resultOptions);
 
     const rollMessage = await sendRollMessage(
       message,
       game,
       result,
-      resultOptions
+      resultOptions,
+      usedOpts
     );
 
     // console.log(rollMessage.embeds[0])
@@ -128,20 +135,28 @@ const addOption = (option) => (message) => {
       );
 
     const result = game.playerTurn.savedDices.map((dice) => dice.diceResult);
-    const resultOptions = options(result);
+    const resultOptions = options(result, usedOptions(game, message.author.id));
 
-    if (!resultOptions.some((resultOption) => resultOption === option))
+    const player = findPlayer(game, message.author.id);
+
+    if (player.table[option] !== undefined)
       return sendMessageTo(
         message.channel.id,
         `${message.author.username}, that option is not valid!`
       );
 
-    const player = findPlayer(game, message.author.id);
-    player.table[option] = calculatePoints(
-      option,
-      game.playerTurn.savedDices.map((dice) => dice.diceResult),
-      game.playerTurn.rolledTimes === 1
-    );
+    if (!resultOptions.some((resultOption) => resultOption === option)) {
+      player.table[option] = 0;
+    } else {
+      player.table[option] = calculatePoints(
+        option,
+        game.playerTurn.savedDices.map((dice) => dice.diceResult),
+        game.playerTurn.rolledTimes === 1
+      );
+    }
+
+    passTurn(game, player);
+    return sendTurnMessage(message.channel.id, game.playerTurn.user);
   }
 };
 

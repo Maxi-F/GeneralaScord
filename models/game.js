@@ -80,12 +80,31 @@ const findPlayer = (game, userId) =>
 
 const isMyTurn = (userId, game) => game.playerTurn.user.id === userId;
 
+const passTurn = (game, prevPlayer) => {
+  const nextPlayerIndex =
+    (game.players.findIndex((player) => player.user.id === prevPlayer.user.id) +
+      1) %
+    game.players.length;
+  game.playerTurn = {
+    user: game.players[nextPlayerIndex].user,
+    rolledTimes: 0,
+    savedDices: createSavedDices(),
+  };
+};
+
+const usedOptions = (game, userId) =>
+  Object.entries(findPlayer(game, userId).table)
+    .filter(([, value]) => value !== undefined)
+    .map(([option]) => option);
+
 module.exports = {
   games,
   createEmptyGame,
   createPlayer,
   findPlayer,
   startGame,
+  usedOptions,
   getGameFrom,
   isMyTurn,
+  passTurn,
 };

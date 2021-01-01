@@ -50,7 +50,7 @@ const addRest = (opts, numericOpts) => {
   }
 };
 
-const options = (result) => {
+const options = (result, usedOpts) => {
   let numericOpts = [];
   let opts;
 
@@ -65,7 +65,8 @@ const options = (result) => {
   // Agrega el resto de las opciones
   addRest(opts, numericOpts);
 
-  return opts;
+  console.log(usedOpts);
+  return opts.filter((opt) => !usedOpts.some((anUsedOpt) => anUsedOpt === opt));
 };
 
 const summatoryOf = (number) => (dices) =>

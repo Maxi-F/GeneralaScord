@@ -1,5 +1,7 @@
 const bot = require('../bot.js');
 const { ROLL_REACTIONS } = require('../constants/reactions.js');
+const { TABLE_OPTIONS } = require('../constants/tableOptions.js');
+const { calculatePoints } = require('./generala.js');
 
 const createEmbed = (message, embedInfo) => ({
   color: '#0099ff',
@@ -45,7 +47,25 @@ const sendGameMessage = async (message) => {
   return gameCreationMessage;
 };
 
-const sendRollMessage = async (message, game, result, options) => {
+const sendRollMessage = async (message, game, result, options, usedOptions) => {
+  const useOptions = options
+    .map(
+      (option) =>
+        `${option} (${calculatePoints(
+          option,
+          result,
+          game.playerTurn.rolledTimes === 1
+        )})`
+    )
+    .join(', ');
+
+  const crossOptions = Object.values(TABLE_OPTIONS)
+    .filter(
+      (anOption) =>
+        ![...options, ...usedOptions].some((option) => option === anOption)
+    )
+    .join(', ');
+
   const rollMessage = await sendMessageTo(
     message.channel.id,
     `${game.playerTurn.user} rolled!`,
@@ -59,8 +79,14 @@ const sendRollMessage = async (message, game, result, options) => {
           // inline: true
         })),
         {
-          name: 'Options (react with &<option> to use the desired option)',
-          value: options.join(', '),
+          name:
+            'Options to use (react with &<option> to use the desired option)',
+          value: useOptions ? useOptions : 'There are no options to use!',
+        },
+        {
+          name:
+            'Options to cross out (react with &<option> to cross out the desired option)',
+          value: crossOptions ? crossOptions : 'There are no options to cross!',
         },
       ],
     }
