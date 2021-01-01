@@ -42,11 +42,22 @@ const sendRollMessage = async (message, game, result, options) => {
   const rollMessage = await sendMessageTo(message.channel.id, `${game.playerTurn.user} rolled!`, {
     fields: [{
       name: 'rolled dice: ',
-      value: `\`\`\`${result.join(', ')}\`\`\``
-    }]
+      value: 'Pog'
+      // value: `\`\`\`${result.join(', ')}\`\`\``
+    },
+    ...result.map((val, index) => ({
+      name: `Dice ${index + 1}: \`\`\`${val}\`\`\` `,
+      value: game.playerTurn.savedDices[index].fixed ? `This dice is fixed` : `React with ${ROLL_REACTIONS[index]} to keep the dice!`,
+      // inline: true
+    }))]
   })
-  ROLL_REACTIONS.forEach(async reaction => await rollMessage.react(reaction))
   return rollMessage;
 }
 
-module.exports = { sendMessageTo, createEmbed, sendTurnMessage, sendGameMessage, sendRollMessage }
+const reactNumbers = (message, game) => {
+  ROLL_REACTIONS.forEach(async (reaction, index) => {
+    if (!game.playerTurn.savedDices[index].saved) await message.react(reaction)
+  })
+}
+
+module.exports = { sendMessageTo, createEmbed, sendTurnMessage, sendGameMessage, sendRollMessage, reactNumbers }

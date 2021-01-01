@@ -40,6 +40,8 @@ const createEmptyGame = (author) => {
   }
 }
 
+const createSavedDices = () => Array.apply(null, Array(5)).map(() => ({diceResult: undefined, saved: false, fixed: false}));
+
 const getGameFrom = (userId) => games.find(game => game.players.some(player => player.user.id === userId))
 
 const startGame = (game, gameMessage) => {
@@ -55,6 +57,8 @@ const startGame = (game, gameMessage) => {
   gameMessage.edit({
     embed: createEmbed(`Game has started!`),
   });
+
+  game.playerTurn.savedDices = createSavedDices();
 
   return sendTurnMessage(gameMessage.channel.id, game.playerTurn.user)
 }

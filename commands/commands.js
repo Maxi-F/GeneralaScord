@@ -1,5 +1,5 @@
 const { roll } = require('../utils/dice');
-const { sendMessageTo, sendGameMessage, sendRollMessage } = require('../utils/messages');
+const { sendMessageTo, sendGameMessage, sendRollMessage, reactNumbers } = require('../utils/messages');
 const { options } = require('../utils/generala');
 const { createEmptyGame, startGame, getGameFrom } = require('../models/game');
 const { creationReactionListener, creationReactionFilter, rollReactionFilter, addBlockedRoll, removeBlockedRoll } = require('../models/reactions');
@@ -11,12 +11,26 @@ const rollDice = async (message) => {
   const game = getGameFrom(message.author.id);
   if(game && game.status === GAME_STATUS.INGAME) {
     let result = roll(5).sort();
+    game.playerTurn.savedDices.forEach( (dice, index) => {
+      if (!dice.saved) {
+        dice.diceResult = result[index];
+      } else {
+        result[index] = dice.diceResult;
+        dice.fixed = true;
+      }
+    })
+
+    console.log(game.playerTurn.savedDices)
     let resultOptions = options(result);
 
     const rollMessage = await sendRollMessage(message, game, result, resultOptions)
     
-    const rollReactionCollector = rollMessage.createReactionCollector(rollReactionFilter, { idle: 60000, dispose: true });
+    // console.log(rollMessage.embeds[0])
+
+    const rollReactionCollector = rollMessage.createReactionCollector(rollReactionFilter(message.author.id), { idle: 60000, dispose: true });
   
+    reactNumbers(rollMessage, game)
+
     rollReactionCollector.on('collect', reaction => addBlockedRoll(game, reaction));
     rollReactionCollector.on('remove', reaction => removeBlockedRoll(game, reaction));
   }
