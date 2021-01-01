@@ -1,8 +1,25 @@
 const { roll } = require('../utils/dice');
-const { sendMessageTo, sendGameMessage, sendRollMessage, reactNumbers } = require('../utils/messages');
-const { options } = require('../utils/generala');
-const { createEmptyGame, startGame, getGameFrom } = require('../models/game');
-const { creationReactionListener, creationReactionFilter, rollReactionFilter, addBlockedRoll, removeBlockedRoll } = require('../models/reactions');
+const {
+  sendMessageTo,
+  sendGameMessage,
+  sendRollMessage,
+  reactNumbers,
+} = require('../utils/messages');
+const { options, calculatePoints } = require('../utils/generala');
+const {
+  createEmptyGame,
+  startGame,
+  getGameFrom,
+  isMyTurn,
+  findPlayer,
+} = require('../models/game');
+const {
+  creationReactionListener,
+  creationReactionFilter,
+  rollReactionFilter,
+  addBlockedRoll,
+  removeBlockedRoll,
+} = require('../models/reactions');
 const { GAME_STATUS } = require('../constants/status');
 
 const notFound = (command, message) =>
@@ -10,48 +27,99 @@ const notFound = (command, message) =>
 
 const rollDice = async (message) => {
   const game = getGameFrom(message.author.id);
-  if(game && game.status === GAME_STATUS.INGAME) {
+  if (
+    game &&
+    game.status === GAME_STATUS.INGAME &&
+    isMyTurn(message.author.id, game)
+  ) {
     let result = roll(5).sort();
-    game.playerTurn.savedDices.forEach( (dice, index) => {
+    game.playerTurn.savedDices.forEach((dice, index) => {
       if (!dice.saved) {
         dice.diceResult = result[index];
       } else {
         result[index] = dice.diceResult;
         dice.fixed = true;
       }
-    })
+    });
 
     let resultOptions = options(result);
 
-    const rollMessage = await sendRollMessage(message, game, result, resultOptions)
-    
+    const rollMessage = await sendRollMessage(
+      message,
+      game,
+      result,
+      resultOptions
+    );
+
     // console.log(rollMessage.embeds[0])
 
-    const rollReactionCollector = rollMessage.createReactionCollector(rollReactionFilter(message.author.id), { idle: 60000, dispose: true });
-  
-    reactNumbers(rollMessage, game)
+    const rollReactionCollector = rollMessage.createReactionCollector(
+      rollReactionFilter(message.author.id),
+      { idle: 60000, dispose: true }
+    );
 
-    rollReactionCollector.on('collect', reaction => addBlockedRoll(game, reaction));
-    rollReactionCollector.on('remove', reaction => removeBlockedRoll(game, reaction));
+    reactNumbers(rollMessage, game);
+
+    rollReactionCollector.on('collect', (reaction) =>
+      addBlockedRoll(game, reaction)
+    );
+    rollReactionCollector.on('remove', (reaction) =>
+      removeBlockedRoll(game, reaction)
+    );
   }
-}
+};
 
 const createGame = async (message) => {
-  if(getGameFrom(message.author.id)) return sendMessageTo(message.channel.id, `${message.author}, you are already in a game!`);
-  
-  console.log(`Creando un nuevo juego. Creador: ${message.author.username}`)
+  if (getGameFrom(message.author.id))
+    return sendMessageTo(
+      message.channel.id,
+      `${message.author}, you are already in a game!`
+    );
+
+  console.log(`Creando un nuevo juego. Creador: ${message.author.username}`);
   const game = createEmptyGame(message.author);
   const gameCreationMessage = await sendGameMessage(message);
-  const creationCollector = gameCreationMessage.createReactionCollector(creationReactionFilter, { time: 40000 });
+  const creationCollector = gameCreationMessage.createReactionCollector(
+    creationReactionFilter,
+    { time: 40000 }
+  );
 
-  creationCollector.on('collect', reaction => creationReactionListener(game, reaction, gameCreationMessage))
-  creationCollector.on('end', () => game.status === GAME_STATUS.CREATION && startGame(game, gameCreationMessage))
-}
+  creationCollector.on('collect', (reaction) =>
+    creationReactionListener(game, reaction, gameCreationMessage)
+  );
+  creationCollector.on(
+    'end',
+    () =>
+      game.status === GAME_STATUS.CREATION &&
+      startGame(game, gameCreationMessage)
+  );
+};
 
-const playGame = (message) => sendMessageTo(message.channel.id, 'play game!')
+const playGame = (message) => sendMessageTo(message.channel.id, 'play game!');
 
-const endGame = (message) => sendMessageTo(message.channel.id, 'game ended')
+const endGame = (message) => sendMessageTo(message.channel.id, 'game ended');
 
-const addOption = (option) => message => sendMessageTo(message.channel.id, `selected ${option}`);
+const addOption = (option) => (message) => {
+  const game = getGameFrom(message.author.id);
+  if (
+    game &&
+    game.status === GAME_STATUS.INGAME &&
+    isMyTurn(message.author.id, game)
+  ) {
+    const player = findPlayer(game, message.author.id);
+    player.table[option] = calculatePoints(
+      option,
+      game.playerTurn.savedDices.map((dice) => dice.diceResult)
+    );
+    console.log(player.table);
+  }
+};
 
-module.exports = { notFound, rollDice, playGame, endGame, createGame, addOption }
+module.exports = {
+  notFound,
+  rollDice,
+  playGame,
+  endGame,
+  createGame,
+  addOption,
+};

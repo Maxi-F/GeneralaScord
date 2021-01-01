@@ -75,10 +75,17 @@ const startGame = (game, gameMessage) => {
   return sendTurnMessage(gameMessage.channel.id, game.playerTurn.user);
 };
 
+const findPlayer = (game, userId) =>
+  game.players.find((player) => player.user.id === userId);
+
+const isMyTurn = (userId, game) => game.playerTurn.user.id === userId;
+
 module.exports = {
   games,
   createEmptyGame,
   createPlayer,
+  findPlayer,
   startGame,
   getGameFrom,
+  isMyTurn,
 };

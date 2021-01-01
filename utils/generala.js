@@ -68,4 +68,29 @@ const options = (result) => {
   return opts;
 };
 
-module.exports = { options };
+const summatoryOf = (number) => (dices) =>
+  dices.reduce((acum, curr) => (curr === number ? acum + curr : acum), 0);
+
+const calculateServed = (pointsIfServed, pointsIfNotServed) => (_, isServed) =>
+  isServed ? pointsIfServed : pointsIfNotServed;
+
+const calculatePoints = (option, dices, isServed) => {
+  const pointsPerOption = {
+    [TABLE_OPTIONS.ONES]: summatoryOf(1),
+    [TABLE_OPTIONS.TWOS]: summatoryOf(2),
+    [TABLE_OPTIONS.THREES]: summatoryOf(3),
+    [TABLE_OPTIONS.FOURS]: summatoryOf(4),
+    [TABLE_OPTIONS.FIVES]: summatoryOf(5),
+    [TABLE_OPTIONS.SIXES]: summatoryOf(6),
+    [TABLE_OPTIONS.DOUBLE]: calculateServed(15, 10),
+    [TABLE_OPTIONS.STRAIGHT]: calculateServed(25, 20),
+    [TABLE_OPTIONS.FULL]: calculateServed(35, 30),
+    [TABLE_OPTIONS.POKER]: calculateServed(45, 40),
+    [TABLE_OPTIONS.GENERALA]: () => 50,
+    [TABLE_OPTIONS.DOUBLE_GENERALA]: () => 100,
+  }[option];
+
+  return pointsPerOption(dices, isServed);
+};
+
+module.exports = { options, calculatePoints };
