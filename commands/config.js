@@ -1,11 +1,4 @@
-const {
-  endGame,
-  playGame,
-  rollDice,
-  createGame,
-  getTable,
-  addOption,
-} = require('./commands');
+const { rollDice, createGame, getTable, addOption } = require('./commands');
 const { TABLE_OPTIONS } = require('../constants/tableOptions');
 
 const rollOptionsCommands = Object.assign(
@@ -15,11 +8,9 @@ const rollOptionsCommands = Object.assign(
 );
 
 const commands = {
-  end: endGame,
-  play: playGame,
-  roll: rollDice,
-  create: createGame,
-  table: getTable,
+  tirar: rollDice,
+  crear: createGame,
+  tabla: getTable,
   ...rollOptionsCommands,
 };
 

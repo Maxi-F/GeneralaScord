@@ -142,10 +142,6 @@ const getTable = (message) => {
   }
 };
 
-const playGame = (message) => sendMessageTo(message.channel.id, 'play game!');
-
-const endGame = (message) => sendMessageTo(message.channel.id, 'game ended');
-
 const addOption = (option) => (message) => {
   const game = getGameFrom(message.author.id);
   if (game && game.status === GAME_STATUS.INGAME) {
