@@ -1,5 +1,5 @@
 const bot = require('../bot.js');
-const { ROLL_REACTIONS } = require('../constants/reactions.js');
+const { ROLL_REACTIONS, ROLL_LETTERS } = require('../constants/reactions.js');
 const { TABLE_OPTIONS } = require('../constants/tableOptions.js');
 const { calculatePoints } = require('./generala.js');
 
@@ -98,7 +98,7 @@ const sendRollMessage = async (message, game, result, options, usedOptions) => {
     {
       fields: [
         ...result.map((val, index) => ({
-          name: `Dado ${index + 1}: \`\`\`${val}\`\`\` `,
+          name: `Dado ${ROLL_LETTERS[index]}: \`\`\`${val}\`\`\` `,
           value: `Reaccioná con ${ROLL_REACTIONS[index]} para agarrar el dado!`,
           // inline: true
         })),
