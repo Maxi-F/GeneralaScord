@@ -24,7 +24,11 @@ const createPlayer = (player) => ({
 });
 
 const createEmptyGame = (author) => {
-  if (!games.some((game) => game.creator === author)) {
+  if (
+    !games.some(
+      (game) => game.creator === author && game.status === GAME_STATUS.INGAME
+    )
+  ) {
     const game = {
       players: [createPlayer(author)],
       handReactions: [author],
@@ -126,6 +130,21 @@ const calculateFinishedGameTable = (game) =>
     }))
     .sort((aPlayer, anotherPlayer) => anotherPlayer.points - aPlayer.points);
 
+const removePlayerFromAndPassTurn = async (game, userId, channelId) => {
+  const playerToRemove = findPlayer(game, userId);
+
+  if (game.playerTurn.user.id === userId && game.players.length > 1) {
+    passTurn(game, playerToRemove);
+    await sendTurnMessage(channelId, playerToRemove.user);
+  }
+
+  game.players = game.players.filter((player) => player.user.id !== userId);
+
+  if (!game.players.length) {
+    game.status = GAME_STATUS.FINISHED;
+  }
+};
+
 module.exports = {
   games,
   createEmptyGame,
@@ -135,6 +154,7 @@ module.exports = {
   stopCreation,
   usedOptions,
   getGameFrom,
+  removePlayerFromAndPassTurn,
   isMyTurn,
   passTurn,
   isGameFinished,

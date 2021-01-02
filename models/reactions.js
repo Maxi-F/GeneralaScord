@@ -27,6 +27,7 @@ const creationReactionListener = (game, reaction, gameMessage) => {
   const selectedReaction = CREATION_REACTIONS.find(
     ({ reaction: type }) => reaction.emoji.name === type
   );
+  console.log(game);
   return (
     game.status === GAME_STATUS.CREATION &&
     selectedReaction &&

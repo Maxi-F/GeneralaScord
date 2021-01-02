@@ -21,6 +21,7 @@ const {
   isGameFinished,
   calculateFinishedGameTable,
   calculateTotalPoints,
+  removePlayerFromAndPassTurn,
 } = require('../models/game');
 const {
   creationReactionListener,
@@ -142,6 +143,19 @@ const getTable = (message) => {
   }
 };
 
+const leaveGame = (message) => {
+  const game = getGameFrom(message.author.id);
+  if (game && game.status === GAME_STATUS.INGAME) {
+    removePlayerFromAndPassTurn(game, message.author.id, message.channel.id);
+    return sendMessageTo(
+      message.channel.id,
+      `${message.author} salió de la partida.`
+    );
+  } else {
+    return sendNotInGame(message);
+  }
+};
+
 const addOption = (option) => (message) => {
   const game = getGameFrom(message.author.id);
   if (game && game.status === GAME_STATUS.INGAME) {
@@ -197,8 +211,7 @@ const addOption = (option) => (message) => {
 module.exports = {
   notFound,
   rollDice,
-  playGame,
-  endGame,
+  leaveGame,
   createGame,
   getTable,
   addOption,
