@@ -48,6 +48,13 @@ const rollDice = async (message) => {
         `${message.author.username}, you already rolled 3 times`
       );
 
+    const playerDices = game.playerTurn.savedDices;
+
+    if (playerDices.every((dice) => dice.saved))
+      return sendMessageTo(
+        message.channel.id,
+        `${message.author.username}, no agarraste ningun dado!`
+      );
     let result = roll(5).sort();
     game.playerTurn.rolledTimes++;
 
