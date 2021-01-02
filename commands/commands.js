@@ -55,6 +55,7 @@ const rollDice = async (message) => {
         message.channel.id,
         `${message.author.username}, no agarraste ningun dado!`
       );
+
     let result = roll(5).sort();
     game.playerTurn.rolledTimes++;
 
@@ -81,7 +82,7 @@ const rollDice = async (message) => {
     // console.log(rollMessage.embeds[0])
 
     const rollReactionCollector = rollMessage.createReactionCollector(
-      rollReactionFilter(message.author.id),
+      rollReactionFilter(message.author.id, game.playerTurn.rolledTimes),
       { idle: 60000, dispose: true }
     );
 

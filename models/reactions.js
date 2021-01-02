@@ -1,4 +1,4 @@
-const { startGame } = require('./game');
+const { startGame, findPlayer, getGameFrom } = require('./game');
 const { GAME_STATUS } = require('../constants/status');
 const { isBot } = require('../utils/bot');
 const { ROLL_REACTIONS } = require('../constants/reactions');
@@ -39,11 +39,12 @@ const creationReactionFilter = (reaction, user) => {
   );
 };
 
-const rollReactionFilter = (turnId) => (reaction, user) => {
+const rollReactionFilter = (turnId, rolledTimes) => (reaction, user) => {
   return (
     !isBot(user.id) &&
     turnId === user.id &&
-    ROLL_REACTIONS.some((aReaction) => aReaction === reaction.emoji.name)
+    ROLL_REACTIONS.some((aReaction) => aReaction === reaction.emoji.name) &&
+    getGameFrom(turnId).playerTurn.rolledTimes === rolledTimes
   );
 };
 
