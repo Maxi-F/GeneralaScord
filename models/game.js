@@ -1,5 +1,6 @@
-const { sendMessageTo, createEmbed } = require('../utils/messages');
+const { sendTurnMessage, createEmbed } = require('../utils/messages');
 const { GAME_STATUS } = require('../constants/status');
+const { TABLE_OPTIONS } = require('../constants/tableOptions');
 const { isBot } = require('../utils/bot');
 
 const games = [];
@@ -7,18 +8,18 @@ const games = [];
 const createPlayer = (player) => ({
   user: player,
   table: {
-    ones: undefined,
-    twos: undefined,
-    threes: undefined,
-    fours: undefined,
-    fives: undefined,
-    sixes: undefined,
-    double: undefined,
-    poker: undefined,
-    straight: undefined,
-    full: undefined,
-    generala: undefined,
-    doubleGenerala: undefined,
+    [TABLE_OPTIONS.ONES]: undefined,
+    [TABLE_OPTIONS.TWOS]: undefined,
+    [TABLE_OPTIONS.THREES]: undefined,
+    [TABLE_OPTIONS.FOURS]: undefined,
+    [TABLE_OPTIONS.FIVES]: undefined,
+    [TABLE_OPTIONS.SIXES]: undefined,
+    [TABLE_OPTIONS.DOUBLE]: undefined,
+    [TABLE_OPTIONS.POKER]: undefined,
+    [TABLE_OPTIONS.STRAIGHT]: undefined,
+    [TABLE_OPTIONS.FULL]: undefined,
+    [TABLE_OPTIONS.GENERALA]: undefined,
+    [TABLE_OPTIONS.DOUBLE_GENERALA]: undefined,
   },
 });
 
@@ -29,7 +30,7 @@ const createEmptyGame = (author) => {
       handReactions: [author],
       creator: author,
       playerTurn: {
-        player: author,
+        user: author,
         rolledTimes: 0,
         savedDices: [],
       },
@@ -38,8 +39,19 @@ const createEmptyGame = (author) => {
     games.push(game);
     return game;
   }
-  // console.log(games);
 };
+
+const createSavedDices = () =>
+  Array.apply(null, Array(5)).map(() => ({
+    diceResult: undefined,
+    saved: false,
+    fixed: false,
+  }));
+
+const getGameFrom = (userId) =>
+  games.find((game) =>
+    game.players.some((player) => player.user.id === userId)
+  );
 
 const startGame = (game, gameMessage) => {
   const newPlayers = game.handReactions
@@ -49,51 +61,50 @@ const startGame = (game, gameMessage) => {
   game.status = GAME_STATUS.INGAME;
   delete game.handReactions;
 
+  console.log(
+    `Empezando el Juego de ${game.creator.username}.`,
+    `Jugadores: ${game.players.map((player) => player.user.username)}`
+  );
+
   gameMessage.edit({
-    embed: createEmbed('Game is starting!', {
-      fields: [
-        {
-          name: `First player is: ${game.playerTurn.player.username}`,
-          value: 'Roll the dice with &roll!',
-        },
-      ],
-    }),
+    embed: createEmbed('Game has started!'),
   });
+
+  game.playerTurn.savedDices = createSavedDices();
+
+  return sendTurnMessage(gameMessage.channel.id, game.playerTurn.user);
 };
 
-const sendGameMessage = async (message) => {
-  const gameCreationMessage = await sendMessageTo(
-    message.channel.id,
-    `${message.author.username} is creating a game!`,
-    {
-      fields: [
-        {
-          name: 'Join the game!',
-          value: 'React with 🤚',
-          inline: true,
-        },
-        {
-          name: '\u200b',
-          value: '\u200b',
-          inline: true,
-        },
-        {
-          name: 'Start the game!',
-          value: 'Start with ▶',
-          inline: true,
-        },
-      ],
-    }
-  );
-  gameCreationMessage.react('🤚');
-  gameCreationMessage.react('▶');
-  return gameCreationMessage;
+const findPlayer = (game, userId) =>
+  game.players.find((player) => player.user.id === userId);
+
+const isMyTurn = (userId, game) => game.playerTurn.user.id === userId;
+
+const passTurn = (game, prevPlayer) => {
+  const nextPlayerIndex =
+    (game.players.findIndex((player) => player.user.id === prevPlayer.user.id) +
+      1) %
+    game.players.length;
+  game.playerTurn = {
+    user: game.players[nextPlayerIndex].user,
+    rolledTimes: 0,
+    savedDices: createSavedDices(),
+  };
 };
+
+const usedOptions = (game, userId) =>
+  Object.entries(findPlayer(game, userId).table)
+    .filter(([, value]) => value !== undefined)
+    .map(([option]) => option);
 
 module.exports = {
   games,
-  sendGameMessage,
   createEmptyGame,
   createPlayer,
+  findPlayer,
   startGame,
+  usedOptions,
+  getGameFrom,
+  isMyTurn,
+  passTurn,
 };

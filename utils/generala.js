@@ -1,18 +1,19 @@
+const { TABLE_OPTIONS } = require('../constants/tableOptions');
+
 const addNumericDiceOptions = (result, opts) => {
   let numericOptions = [
-    'unos',
-    'doses',
-    'treses',
-    'cuatros',
-    'cincos',
-    'seises',
+    TABLE_OPTIONS.ONES,
+    TABLE_OPTIONS.TWOS,
+    TABLE_OPTIONS.THREES,
+    TABLE_OPTIONS.FOURS,
+    TABLE_OPTIONS.FIVES,
+    TABLE_OPTIONS.SIXES,
   ];
   result.forEach((number) => {
     const numericActualOption = numericOptions[number - 1];
     const foundOption = opts.find(
       (option) => option.opt === numericActualOption
     );
-
     if (!foundOption) {
       opts.push({ opt: numericActualOption, count: 1 });
     } else {
@@ -23,7 +24,7 @@ const addNumericDiceOptions = (result, opts) => {
 
 const addStraight = (result, opts) => {
   if (opts.length >= 5 && ![1, 2, 6].every((num) => result.includes(num)))
-    opts.push('Escalera'); // banana
+    opts.push(TABLE_OPTIONS.STRAIGHT);
 };
 
 const addRest = (opts, numericOpts) => {
@@ -33,8 +34,8 @@ const addRest = (opts, numericOpts) => {
     1: () => {},
     2: () => two++,
     3: () => three++,
-    4: () => opts.push('Poker'),
-    5: () => opts.push('Generala'),
+    4: () => opts.push(TABLE_OPTIONS.POKER),
+    5: () => opts.push(TABLE_OPTIONS.GENERALA),
   };
 
   numericOpts.forEach((opt) => {
@@ -42,14 +43,14 @@ const addRest = (opts, numericOpts) => {
   });
 
   if (two && three) {
-    opts.push('Doble');
-    opts.push('Full');
+    opts.push(TABLE_OPTIONS.DOUBLE);
+    opts.push(TABLE_OPTIONS.FULL);
   } else if (two > 1) {
-    opts.push('Doble');
+    opts.push(TABLE_OPTIONS.DOUBLE);
   }
 };
 
-const options = (result) => {
+const options = (result, usedOpts) => {
   let numericOpts = [];
   let opts;
 
@@ -64,7 +65,33 @@ const options = (result) => {
   // Agrega el resto de las opciones
   addRest(opts, numericOpts);
 
-  return opts;
+  console.log(usedOpts);
+  return opts.filter((opt) => !usedOpts.some((anUsedOpt) => anUsedOpt === opt));
 };
 
-module.exports = { options };
+const summatoryOf = (number) => (dices) =>
+  dices.reduce((acum, curr) => (curr === number ? acum + curr : acum), 0);
+
+const calculateServed = (pointsIfServed, pointsIfNotServed) => (_, isServed) =>
+  isServed ? pointsIfServed : pointsIfNotServed;
+
+const calculatePoints = (option, dices, isServed) => {
+  const pointsPerOption = {
+    [TABLE_OPTIONS.ONES]: summatoryOf(1),
+    [TABLE_OPTIONS.TWOS]: summatoryOf(2),
+    [TABLE_OPTIONS.THREES]: summatoryOf(3),
+    [TABLE_OPTIONS.FOURS]: summatoryOf(4),
+    [TABLE_OPTIONS.FIVES]: summatoryOf(5),
+    [TABLE_OPTIONS.SIXES]: summatoryOf(6),
+    [TABLE_OPTIONS.DOUBLE]: calculateServed(15, 10),
+    [TABLE_OPTIONS.STRAIGHT]: calculateServed(25, 20),
+    [TABLE_OPTIONS.FULL]: calculateServed(35, 30),
+    [TABLE_OPTIONS.POKER]: calculateServed(45, 40),
+    [TABLE_OPTIONS.GENERALA]: () => 50,
+    [TABLE_OPTIONS.DOUBLE_GENERALA]: () => 100,
+  }[option];
+
+  return pointsPerOption(dices, isServed);
+};
+
+module.exports = { options, calculatePoints };
