@@ -20,6 +20,7 @@ const {
   passTurn,
   isGameFinished,
   calculateFinishedGameTable,
+  calculateTotalPoints,
 } = require('../models/game');
 const {
   creationReactionListener,
@@ -57,7 +58,7 @@ const rollDice = async (message) => {
         `${message.author.username}, no agarraste ningun dado!`
       );
 
-    let result = roll(5).sort();
+    let result = roll(5);
     game.playerTurn.rolledTimes++;
 
     game.playerTurn.savedDices.forEach((dice, index) => {
@@ -71,7 +72,7 @@ const rollDice = async (message) => {
 
     const usedOpts = usedOptions(game, message.author.id);
     let resultOptions = options(
-      result,
+      [...result].sort(),
       usedOpts,
       findPlayer(game, message.author.id).table[TABLE_OPTIONS.GENERALA]
     );
@@ -134,7 +135,7 @@ const getTable = (message) => {
   const game = getGameFrom(message.author.id);
   if (game && game.status === GAME_STATUS.INGAME) {
     const player = findPlayer(game, message.author.id);
-    return sendActualTable(player, message);
+    return sendActualTable(player, message, calculateTotalPoints(player));
   } else {
     return sendNotInGame(message);
   }
@@ -160,7 +161,10 @@ const addOption = (option) => (message) => {
       );
 
     const result = game.playerTurn.savedDices.map((dice) => dice.diceResult);
-    const resultOptions = options(result, usedOptions(game, message.author.id));
+    const resultOptions = options(
+      [...result].sort(),
+      usedOptions(game, message.author.id)
+    );
 
     const player = findPlayer(game, message.author.id);
 

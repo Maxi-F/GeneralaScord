@@ -50,13 +50,19 @@ const sendGameMessage = async (message) => {
   return gameCreationMessage;
 };
 
-const sendActualTable = (player, message) => {
+const sendActualTable = (player, message, totalPoints) => {
   return message.author.send({
-    embed: createEmbed('Here is your table!', {
-      fields: Object.entries(player.table).map(([option, value]) => ({
-        name: option,
-        value: value === undefined ? 'not used yet!' : value,
-      })),
+    embed: createEmbed('Aca esta tu tabla!', {
+      fields: [
+        ...Object.entries(player.table).map(([option, value]) => ({
+          name: option,
+          value: value === undefined ? 'No fue usado todavia!' : value,
+        })),
+        {
+          name: 'Puntos totales:',
+          value: `\`\`\`${totalPoints}\`\`\``,
+        },
+      ],
     }),
   });
 };
@@ -94,7 +100,7 @@ const sendRollMessage = async (message, game, result, options, usedOptions) => {
 
   const rollMessage = await sendMessageTo(
     message.channel.id,
-    `${game.playerTurn.user} rolled!`,
+    `${game.playerTurn.user} tiro los dados! Cantidad de veces tiradas: ${game.playerTurn.rolledTimes}`,
     {
       fields: [
         ...result.map((val, index) => ({

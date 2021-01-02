@@ -103,14 +103,17 @@ const isGameFinished = (game) =>
     .flatMap((player) => Object.values(player.table))
     .some((tableValue) => tableValue === undefined);
 
+const calculateTotalPoints = (player) =>
+  Object.values(player.table).reduce(
+    (acum, curr) => (curr === undefined ? acum : acum + curr),
+    0
+  );
+
 const calculateFinishedGameTable = (game) =>
   game.players
     .map((player) => ({
       user: player.user,
-      points: Object.values(player.table).reduce(
-        (acum, curr) => acum + curr,
-        0
-      ),
+      points: calculateTotalPoints(player),
     }))
     .sort((aPlayer, anotherPlayer) => anotherPlayer.points - aPlayer.points);
 
@@ -126,4 +129,5 @@ module.exports = {
   passTurn,
   isGameFinished,
   calculateFinishedGameTable,
+  calculateTotalPoints,
 };
