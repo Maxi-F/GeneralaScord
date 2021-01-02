@@ -45,7 +45,6 @@ const createSavedDices = () =>
   Array.apply(null, Array(5)).map(() => ({
     diceResult: undefined,
     saved: false,
-    fixed: false,
   }));
 
 const getGameFrom = (userId) =>

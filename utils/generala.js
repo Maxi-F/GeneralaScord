@@ -65,7 +65,6 @@ const options = (result, usedOpts) => {
   // Agrega el resto de las opciones
   addRest(opts, numericOpts);
 
-  console.log(usedOpts);
   return opts.filter((opt) => !usedOpts.some((anUsedOpt) => anUsedOpt === opt));
 };
 

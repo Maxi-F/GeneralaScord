@@ -98,10 +98,8 @@ const sendRollMessage = async (message, game, result, options, usedOptions) => {
     {
       fields: [
         ...result.map((val, index) => ({
-          name: `Dice ${index + 1}: \`\`\`${val}\`\`\` `,
-          value: game.playerTurn.savedDices[index].fixed
-            ? 'This dice is fixed'
-            : `React with ${ROLL_REACTIONS[index]} to keep the dice!`,
+          name: `Dado ${index + 1}: \`\`\`${val}\`\`\` `,
+          value: `Reaccioná con ${ROLL_REACTIONS[index]} para agarrar el dado!`,
           // inline: true
         })),
         {
@@ -119,9 +117,9 @@ const sendRollMessage = async (message, game, result, options, usedOptions) => {
   return rollMessage;
 };
 
-const reactNumbers = (message, game) => {
-  ROLL_REACTIONS.forEach(async (reaction, index) => {
-    if (!game.playerTurn.savedDices[index].saved) await message.react(reaction);
+const reactNumbers = (message) => {
+  ROLL_REACTIONS.forEach(async (reaction) => {
+    await message.react(reaction);
   });
 };
 

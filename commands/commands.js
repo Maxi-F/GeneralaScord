@@ -50,12 +50,13 @@ const rollDice = async (message) => {
 
     let result = roll(5).sort();
     game.playerTurn.rolledTimes++;
+
     game.playerTurn.savedDices.forEach((dice, index) => {
       if (!dice.saved) {
         dice.diceResult = result[index];
+        dice.saved = true;
       } else {
         result[index] = dice.diceResult;
-        dice.fixed = true;
       }
     });
 
@@ -80,10 +81,10 @@ const rollDice = async (message) => {
     reactNumbers(rollMessage, game);
 
     rollReactionCollector.on('collect', (reaction) =>
-      addBlockedRoll(game, reaction)
+      removeBlockedRoll(game, reaction)
     );
     rollReactionCollector.on('remove', (reaction) =>
-      removeBlockedRoll(game, reaction)
+      addBlockedRoll(game, reaction)
     );
   } else {
     return sendNotInGame(message);
