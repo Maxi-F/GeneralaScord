@@ -33,7 +33,7 @@ const { GAME_STATUS } = require('../constants/status');
 const { TABLE_OPTIONS } = require('../constants/tableOptions');
 
 const notFound = (command, message) =>
-  sendMessageTo(message.channel.id, `${command} is not a command.`);
+  sendMessageTo(message.channel.id, `${command} no es un comando.`);
 
 const rollDice = async (message) => {
   const game = getGameFrom(message.author.id);
@@ -41,13 +41,13 @@ const rollDice = async (message) => {
     if (!isMyTurn(message.author.id, game))
       return sendMessageTo(
         message.channel.id,
-        `${message.author.username}, it is not your turn!`
+        `${message.author.username}, no es tu turno!`
       );
 
     if (game.playerTurn.rolledTimes === 3)
       return sendMessageTo(
         message.channel.id,
-        `${message.author.username}, you already rolled 3 times`
+        `${message.author.username}, ya tiraste 3 veces.`
       );
 
     const playerDices = game.playerTurn.savedDices;
@@ -109,7 +109,7 @@ const createGame = async (message) => {
   if (getGameFrom(message.author.id))
     return sendMessageTo(
       message.channel.id,
-      `${message.author}, you are already in a game!`
+      `${message.author}, ya estas en una partida!`
     );
 
   console.log(`Creando un nuevo juego. Creador: ${message.author.username}`);
@@ -152,13 +152,13 @@ const addOption = (option) => (message) => {
     if (!isMyTurn(message.author.id, game))
       return sendMessageTo(
         message.channel.id,
-        `${message.author.username}, it is not your turn!`
+        `${message.author.username}, no es tu turno!`
       );
 
     if (game.playerTurn.rolledTimes === 0)
       return sendMessageTo(
         message.channel.id,
-        `${message.author.username}, you did not roll yet!`
+        `${message.author.username}, no tiraste todavía!`
       );
 
     const result = game.playerTurn.savedDices.map((dice) => dice.diceResult);
@@ -172,7 +172,7 @@ const addOption = (option) => (message) => {
     if (player.table[option] !== undefined)
       return sendMessageTo(
         message.channel.id,
-        `${message.author.username}, that option is not valid!`
+        `${message.author.username}, esa opción no es válida! Ya está tachada o utilizada.`
       );
 
     if (!resultOptions.some((resultOption) => resultOption === option)) {

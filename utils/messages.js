@@ -16,24 +16,27 @@ const sendMessageTo = (channelId, message, embedInfo = {}) => {
 };
 
 const sendNotInGame = (message) =>
-  sendMessageTo(message.channel.id, `${message.author}, you are not in game!`);
+  sendMessageTo(
+    message.channel.id,
+    `${message.author}, no estas en una partida!`
+  );
 
 const sendTurnMessage = (channelId, player) =>
-  sendMessageTo(channelId, `Next turn: ${player}`);
+  sendMessageTo(channelId, `Próximo turno: ${player}`);
 
 const sendGameMessage = async (message) => {
   const gameCreationMessage = await sendMessageTo(
     message.channel.id,
-    `${message.author.username} is creating a game!`,
+    `${message.author.username} está creando una partida!`,
     {
       fields: [
         {
-          name: 'Join the game!',
-          value: 'React with 🤚',
+          name: 'Unite al juego!',
+          value: 'Unite con 🤚',
         },
         {
-          name: 'Start the game!',
-          value: 'Start with ▶',
+          name: 'Empeza el juego!',
+          value: 'Empezalo con ▶',
         },
         {
           name: 'Cancelar creación',
@@ -68,10 +71,10 @@ const sendActualTable = (player, message, totalPoints) => {
 const sendGameEndMessage = (message, gameTable) =>
   sendMessageTo(
     message.channel.id,
-    `The game has ended! ${gameTable[0].user} wins!`,
+    `Terminó la partida! ${gameTable[0].user} ha ganado!`,
     {
       fields: gameTable.map((player) => ({
-        name: `${player.user.username} points:`,
+        name: `Puntos totales de ${player.user.username}:`,
         value: player.points,
       })),
     }
@@ -107,13 +110,14 @@ const sendRollMessage = async (message, game, result, options, usedOptions) => {
           // inline: true
         })),
         {
-          name: 'Options to use (use &<option> to use the desired option)',
-          value: useOptions ? useOptions : 'There are no options to use!',
+          name:
+            'Opciones para usar (usá &<opción> para utilizar la opción correspondiente)',
+          value: useOptions ? useOptions : 'No hay opciones para usar!',
         },
         {
           name:
-            'Options to cross out (use &<option> to cross out the desired option)',
-          value: crossOptions ? crossOptions : 'There are no options to cross!',
+            'Opciones para tachar (usá &<opción> para tachar la opción deseada)',
+          value: crossOptions ? crossOptions : 'No hay opciones para tachar!',
         },
       ],
     }
