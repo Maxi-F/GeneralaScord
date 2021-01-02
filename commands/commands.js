@@ -5,6 +5,9 @@ const {
   sendRollMessage,
   reactNumbers,
   sendTurnMessage,
+  sendActualTable,
+  sendGameEndMessage,
+  sendNotInGame,
 } = require('../utils/messages');
 const { options, calculatePoints } = require('../utils/generala');
 const {
@@ -15,6 +18,8 @@ const {
   findPlayer,
   usedOptions,
   passTurn,
+  isGameFinished,
+  calculateFinishedGameTable,
 } = require('../models/game');
 const {
   creationReactionListener,
@@ -57,8 +62,6 @@ const rollDice = async (message) => {
     const usedOpts = usedOptions(game, message.author.id);
     let resultOptions = options(result, usedOpts);
 
-    console.log(resultOptions);
-
     const rollMessage = await sendRollMessage(
       message,
       game,
@@ -82,6 +85,8 @@ const rollDice = async (message) => {
     rollReactionCollector.on('remove', (reaction) =>
       removeBlockedRoll(game, reaction)
     );
+  } else {
+    return sendNotInGame(message);
   }
 };
 
@@ -111,17 +116,23 @@ const createGame = async (message) => {
   );
 };
 
+const getTable = (message) => {
+  const game = getGameFrom(message.author.id);
+  if (game && game.status === GAME_STATUS.INGAME) {
+    const player = findPlayer(game, message.author.id);
+    return sendActualTable(player, message);
+  } else {
+    return sendNotInGame(message);
+  }
+};
+
 const playGame = (message) => sendMessageTo(message.channel.id, 'play game!');
 
 const endGame = (message) => sendMessageTo(message.channel.id, 'game ended');
 
 const addOption = (option) => (message) => {
   const game = getGameFrom(message.author.id);
-  if (
-    game &&
-    game.status === GAME_STATUS.INGAME &&
-    isMyTurn(message.author.id, game)
-  ) {
+  if (game && game.status === GAME_STATUS.INGAME) {
     if (!isMyTurn(message.author.id, game))
       return sendMessageTo(
         message.channel.id,
@@ -155,8 +166,16 @@ const addOption = (option) => (message) => {
       );
     }
 
+    if (isGameFinished(game)) {
+      const gameTable = calculateFinishedGameTable(game);
+      game.status = GAME_STATUS.FINISHED;
+      return sendGameEndMessage(message, gameTable);
+    }
+
     passTurn(game, player);
     return sendTurnMessage(message.channel.id, game.playerTurn.user);
+  } else {
+    return sendNotInGame(message);
   }
 };
 
@@ -166,5 +185,6 @@ module.exports = {
   playGame,
   endGame,
   createGame,
+  getTable,
   addOption,
 };

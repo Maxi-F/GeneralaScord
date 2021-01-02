@@ -97,6 +97,22 @@ const usedOptions = (game, userId) =>
     .filter(([, value]) => value !== undefined)
     .map(([option]) => option);
 
+const isGameFinished = (game) =>
+  !game.players
+    .flatMap((player) => Object.values(player.table))
+    .some((tableValue) => tableValue === undefined);
+
+const calculateFinishedGameTable = (game) =>
+  game.players
+    .map((player) => ({
+      user: player.user,
+      points: Object.values(player.table).reduce(
+        (acum, curr) => acum + curr,
+        0
+      ),
+    }))
+    .sort((aPlayer, anotherPlayer) => anotherPlayer.points - aPlayer.points);
+
 module.exports = {
   games,
   createEmptyGame,
@@ -107,4 +123,6 @@ module.exports = {
   getGameFrom,
   isMyTurn,
   passTurn,
+  isGameFinished,
+  calculateFinishedGameTable,
 };
