@@ -37,7 +37,7 @@ const createEmptyGame = (author) => {
       },
       status: GAME_STATUS.CREATION,
     };
-    games.push(game);
+
     return game;
   }
 };
@@ -52,6 +52,14 @@ const getGameFrom = (userId) =>
   games.find((game) =>
     game.players.some((player) => player.user.id === userId)
   );
+
+const stopCreation = (game, gameMessage) => {
+  game.status = GAME_STATUS.CANCELED;
+
+  gameMessage.edit({
+    embed: createEmbed('Game was canceled'),
+  });
+};
 
 const startGame = (game, gameMessage) => {
   const newPlayers = game.handReactions
@@ -72,6 +80,7 @@ const startGame = (game, gameMessage) => {
 
   game.playerTurn.savedDices = createSavedDices();
 
+  games.push(game);
   return sendTurnMessage(gameMessage.channel.id, game.playerTurn.user);
 };
 
@@ -123,6 +132,7 @@ module.exports = {
   createPlayer,
   findPlayer,
   startGame,
+  stopCreation,
   usedOptions,
   getGameFrom,
   isMyTurn,

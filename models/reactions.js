@@ -1,4 +1,4 @@
-const { startGame, getGameFrom } = require('./game');
+const { startGame, getGameFrom, stopCreation } = require('./game');
 const { GAME_STATUS } = require('../constants/status');
 const { isBot } = require('../utils/bot');
 const { ROLL_REACTIONS } = require('../constants/reactions');
@@ -16,6 +16,10 @@ const CREATION_REACTIONS = [
   {
     reaction: '▶',
     action: startGame,
+  },
+  {
+    reaction: '🔴',
+    action: stopCreation,
   },
 ];
 

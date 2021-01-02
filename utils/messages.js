@@ -42,11 +42,16 @@ const sendGameMessage = async (message) => {
           value: 'Start with ▶',
           inline: true,
         },
+        {
+          name: 'Cancelar creación',
+          value: 'Cancelá con 🔴',
+        },
       ],
     }
   );
   gameCreationMessage.react('🤚');
   gameCreationMessage.react('▶');
+  gameCreationMessage.react('🔴');
   return gameCreationMessage;
 };
 

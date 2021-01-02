@@ -89,7 +89,7 @@ const rollDice = async (message) => {
 
     const rollReactionCollector = rollMessage.createReactionCollector(
       rollReactionFilter(message.author.id, game.playerTurn.rolledTimes),
-      { idle: 60000, dispose: true }
+      { idle: 180000, dispose: true }
     );
 
     reactNumbers(rollMessage, game);
@@ -117,12 +117,13 @@ const createGame = async (message) => {
   const gameCreationMessage = await sendGameMessage(message);
   const creationCollector = gameCreationMessage.createReactionCollector(
     creationReactionFilter,
-    { time: 40000 }
+    { time: 120000 }
   );
 
   creationCollector.on('collect', (reaction) =>
     creationReactionListener(game, reaction, gameCreationMessage)
   );
+
   creationCollector.on(
     'end',
     () =>
