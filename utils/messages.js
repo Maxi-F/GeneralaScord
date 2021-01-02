@@ -30,17 +30,10 @@ const sendGameMessage = async (message) => {
         {
           name: 'Join the game!',
           value: 'React with 🤚',
-          inline: true,
-        },
-        {
-          name: '\u200b',
-          value: '\u200b',
-          inline: true,
         },
         {
           name: 'Start the game!',
           value: 'Start with ▶',
-          inline: true,
         },
         {
           name: 'Cancelar creación',
