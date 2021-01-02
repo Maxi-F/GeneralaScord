@@ -1,4 +1,4 @@
-const { startGame, findPlayer, getGameFrom } = require('./game');
+const { startGame, getGameFrom } = require('./game');
 const { GAME_STATUS } = require('../constants/status');
 const { isBot } = require('../utils/bot');
 const { ROLL_REACTIONS } = require('../constants/reactions');

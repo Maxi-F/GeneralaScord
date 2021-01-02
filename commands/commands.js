@@ -29,6 +29,7 @@ const {
   removeBlockedRoll,
 } = require('../models/reactions');
 const { GAME_STATUS } = require('../constants/status');
+const { TABLE_OPTIONS } = require('../constants/tableOptions');
 
 const notFound = (command, message) =>
   sendMessageTo(message.channel.id, `${command} is not a command.`);
@@ -69,7 +70,11 @@ const rollDice = async (message) => {
     });
 
     const usedOpts = usedOptions(game, message.author.id);
-    let resultOptions = options(result, usedOpts);
+    let resultOptions = options(
+      result,
+      usedOpts,
+      findPlayer(game, message.author.id).table[TABLE_OPTIONS.GENERALA]
+    );
 
     const rollMessage = await sendRollMessage(
       message,

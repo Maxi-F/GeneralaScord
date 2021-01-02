@@ -33,6 +33,7 @@ const createEmptyGame = (author) => {
         user: author,
         rolledTimes: 0,
         savedDices: [],
+        hasGenerala: false,
       },
       status: GAME_STATUS.CREATION,
     };
@@ -88,6 +89,7 @@ const passTurn = (game, prevPlayer) => {
     user: game.players[nextPlayerIndex].user,
     rolledTimes: 0,
     savedDices: createSavedDices(),
+    hasGenerala: false,
   };
 };
 

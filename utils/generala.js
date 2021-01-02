@@ -27,7 +27,7 @@ const addStraight = (result, opts) => {
     opts.push(TABLE_OPTIONS.STRAIGHT);
 };
 
-const addRest = (opts, numericOpts) => {
+const addRest = (opts, numericOpts, hasGenerala) => {
   let two = 0;
   let three = 0;
   const countOptions = {
@@ -35,7 +35,13 @@ const addRest = (opts, numericOpts) => {
     2: () => two++,
     3: () => three++,
     4: () => opts.push(TABLE_OPTIONS.POKER),
-    5: () => opts.push(TABLE_OPTIONS.GENERALA),
+    5: () => {
+      if (hasGenerala) {
+        opts.push(TABLE_OPTIONS.DOUBLE_GENERALA);
+      } else {
+        opts.push(TABLE_OPTIONS.GENERALA);
+      }
+    },
   };
 
   numericOpts.forEach((opt) => {
@@ -50,7 +56,7 @@ const addRest = (opts, numericOpts) => {
   }
 };
 
-const options = (result, usedOpts) => {
+const options = (result, usedOpts, hasGenerala) => {
   let numericOpts = [];
   let opts;
 
@@ -63,7 +69,7 @@ const options = (result, usedOpts) => {
   addStraight(result, opts);
 
   // Agrega el resto de las opciones
-  addRest(opts, numericOpts);
+  addRest(opts, numericOpts, hasGenerala);
 
   return opts.filter((opt) => !usedOpts.some((anUsedOpt) => anUsedOpt === opt));
 };
@@ -87,7 +93,7 @@ const calculatePoints = (option, dices, isServed) => {
     [TABLE_OPTIONS.FULL]: calculateServed(35, 30),
     [TABLE_OPTIONS.POKER]: calculateServed(45, 40),
     [TABLE_OPTIONS.GENERALA]: () => 50,
-    [TABLE_OPTIONS.DOUBLE_GENERALA]: () => 100,
+    [TABLE_OPTIONS.DOUBLE_GENERALA]: () => 60,
   }[option];
 
   return pointsPerOption(dices, isServed);
