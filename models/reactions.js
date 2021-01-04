@@ -1,4 +1,4 @@
-const { startGame } = require('./game');
+const { startGame, getGameFrom, stopCreation } = require('./game');
 const { GAME_STATUS } = require('../constants/status');
 const { isBot } = require('../utils/bot');
 const { ROLL_REACTIONS } = require('../constants/reactions');
@@ -16,6 +16,10 @@ const CREATION_REACTIONS = [
   {
     reaction: '▶',
     action: startGame,
+  },
+  {
+    reaction: '🔴',
+    action: stopCreation,
   },
 ];
 
@@ -39,11 +43,12 @@ const creationReactionFilter = (reaction, user) => {
   );
 };
 
-const rollReactionFilter = (turnId) => (reaction, user) => {
+const rollReactionFilter = (turnId, rolledTimes) => (reaction, user) => {
   return (
     !isBot(user.id) &&
     turnId === user.id &&
-    ROLL_REACTIONS.some((aReaction) => aReaction === reaction.emoji.name)
+    ROLL_REACTIONS.some((aReaction) => aReaction === reaction.emoji.name) &&
+    getGameFrom(turnId).playerTurn.rolledTimes === rolledTimes
   );
 };
 
@@ -52,24 +57,24 @@ const manageRoll = (value, createMessage) => (game, reaction) => {
     (emoji) => reaction.emoji.name === emoji
   );
 
-  // Este if esta solo para asegurar que no este guardado el dado desde antes.
-  if (!game.playerTurn.savedDices[diceIndex].fixed) {
-    const newEmbed = reaction.message.embeds[0];
-    game.playerTurn.savedDices[diceIndex].saved = value;
+  const newEmbed = reaction.message.embeds[0];
+  game.playerTurn.savedDices[diceIndex].saved = value;
 
-    // console.log(newEmbed.fields)
-    newEmbed.fields[diceIndex].value = createMessage(ROLL_REACTIONS[diceIndex]);
-    // newEmbed.fields[diceIndex + 1].name = `Dice ${diceIndex + 1}: \`\`\`${ROLL_REACTIONS[diceIndex]}\`\`\` :white_check_mark:`
+  // console.log(newEmbed.fields)
+  newEmbed.fields[diceIndex].value = createMessage(ROLL_REACTIONS[diceIndex]);
+  // newEmbed.fields[diceIndex + 1].name = `Dice ${diceIndex + 1}: \`\`\`${ROLL_REACTIONS[diceIndex]}\`\`\` :white_check_mark:`
 
-    reaction.message.edit(newEmbed);
-  }
+  reaction.message.edit(newEmbed);
 };
-
-const addBlockedRoll = manageRoll(true, () => 'You are keeping this dice');
 
 const removeBlockedRoll = manageRoll(
   false,
-  (dice) => `React with ${dice} to keep the dice!`
+  () => 'Dado seleccionado! usá &roll para tirar de nuevo este dado.'
+);
+
+const addBlockedRoll = manageRoll(
+  true,
+  (dice) => `Reaccioná con ${dice} para agarrar el dado!`
 );
 
 module.exports = {

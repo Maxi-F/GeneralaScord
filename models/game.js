@@ -33,10 +33,11 @@ const createEmptyGame = (author) => {
         user: author,
         rolledTimes: 0,
         savedDices: [],
+        hasGenerala: false,
       },
       status: GAME_STATUS.CREATION,
     };
-    games.push(game);
+
     return game;
   }
 };
@@ -45,13 +46,20 @@ const createSavedDices = () =>
   Array.apply(null, Array(5)).map(() => ({
     diceResult: undefined,
     saved: false,
-    fixed: false,
   }));
 
 const getGameFrom = (userId) =>
   games.find((game) =>
     game.players.some((player) => player.user.id === userId)
   );
+
+const stopCreation = (game, gameMessage) => {
+  game.status = GAME_STATUS.CANCELED;
+
+  gameMessage.edit({
+    embed: createEmbed('Game was canceled'),
+  });
+};
 
 const startGame = (game, gameMessage) => {
   const newPlayers = game.handReactions
@@ -72,6 +80,7 @@ const startGame = (game, gameMessage) => {
 
   game.playerTurn.savedDices = createSavedDices();
 
+  games.push(game);
   return sendTurnMessage(gameMessage.channel.id, game.playerTurn.user);
 };
 
@@ -89,6 +98,7 @@ const passTurn = (game, prevPlayer) => {
     user: game.players[nextPlayerIndex].user,
     rolledTimes: 0,
     savedDices: createSavedDices(),
+    hasGenerala: false,
   };
 };
 
@@ -102,14 +112,17 @@ const isGameFinished = (game) =>
     .flatMap((player) => Object.values(player.table))
     .some((tableValue) => tableValue === undefined);
 
+const calculateTotalPoints = (player) =>
+  Object.values(player.table).reduce(
+    (acum, curr) => (curr === undefined ? acum : acum + curr),
+    0
+  );
+
 const calculateFinishedGameTable = (game) =>
   game.players
     .map((player) => ({
       user: player.user,
-      points: Object.values(player.table).reduce(
-        (acum, curr) => acum + curr,
-        0
-      ),
+      points: calculateTotalPoints(player),
     }))
     .sort((aPlayer, anotherPlayer) => anotherPlayer.points - aPlayer.points);
 
@@ -119,10 +132,12 @@ module.exports = {
   createPlayer,
   findPlayer,
   startGame,
+  stopCreation,
   usedOptions,
   getGameFrom,
   isMyTurn,
   passTurn,
   isGameFinished,
   calculateFinishedGameTable,
+  calculateTotalPoints,
 };

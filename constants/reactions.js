@@ -1,3 +1,5 @@
-const ROLL_REACTIONS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
+const ROLL_REACTIONS = ['🇦', '🇧', '🇨', '🇩', '🇪'];
 
-module.exports = { ROLL_REACTIONS };
+const ROLL_LETTERS = 'ABCDE';
+
+module.exports = { ROLL_REACTIONS, ROLL_LETTERS };

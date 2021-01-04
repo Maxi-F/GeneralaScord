@@ -20,6 +20,7 @@ const {
   passTurn,
   isGameFinished,
   calculateFinishedGameTable,
+  calculateTotalPoints,
 } = require('../models/game');
 const {
   creationReactionListener,
@@ -29,6 +30,7 @@ const {
   removeBlockedRoll,
 } = require('../models/reactions');
 const { GAME_STATUS } = require('../constants/status');
+const { TABLE_OPTIONS } = require('../constants/tableOptions');
 
 const notFound = (command, message) =>
   sendMessageTo(message.channel.id, `${command} is not a command.`);
@@ -48,19 +50,32 @@ const rollDice = async (message) => {
         `${message.author.username}, you already rolled 3 times`
       );
 
-    let result = roll(5).sort();
+    const playerDices = game.playerTurn.savedDices;
+
+    if (playerDices.every((dice) => dice.saved))
+      return sendMessageTo(
+        message.channel.id,
+        `${message.author.username}, no agarraste ningun dado!`
+      );
+
+    let result = roll(5);
     game.playerTurn.rolledTimes++;
+
     game.playerTurn.savedDices.forEach((dice, index) => {
       if (!dice.saved) {
         dice.diceResult = result[index];
+        dice.saved = true;
       } else {
         result[index] = dice.diceResult;
-        dice.fixed = true;
       }
     });
 
     const usedOpts = usedOptions(game, message.author.id);
-    let resultOptions = options(result, usedOpts);
+    let resultOptions = options(
+      [...result].sort(),
+      usedOpts,
+      findPlayer(game, message.author.id).table[TABLE_OPTIONS.GENERALA]
+    );
 
     const rollMessage = await sendRollMessage(
       message,
@@ -73,17 +88,17 @@ const rollDice = async (message) => {
     // console.log(rollMessage.embeds[0])
 
     const rollReactionCollector = rollMessage.createReactionCollector(
-      rollReactionFilter(message.author.id),
-      { idle: 60000, dispose: true }
+      rollReactionFilter(message.author.id, game.playerTurn.rolledTimes),
+      { idle: 180000, dispose: true }
     );
 
     reactNumbers(rollMessage, game);
 
     rollReactionCollector.on('collect', (reaction) =>
-      addBlockedRoll(game, reaction)
+      removeBlockedRoll(game, reaction)
     );
     rollReactionCollector.on('remove', (reaction) =>
-      removeBlockedRoll(game, reaction)
+      addBlockedRoll(game, reaction)
     );
   } else {
     return sendNotInGame(message);
@@ -102,12 +117,13 @@ const createGame = async (message) => {
   const gameCreationMessage = await sendGameMessage(message);
   const creationCollector = gameCreationMessage.createReactionCollector(
     creationReactionFilter,
-    { time: 40000 }
+    { time: 120000 }
   );
 
   creationCollector.on('collect', (reaction) =>
     creationReactionListener(game, reaction, gameCreationMessage)
   );
+
   creationCollector.on(
     'end',
     () =>
@@ -120,7 +136,7 @@ const getTable = (message) => {
   const game = getGameFrom(message.author.id);
   if (game && game.status === GAME_STATUS.INGAME) {
     const player = findPlayer(game, message.author.id);
-    return sendActualTable(player, message);
+    return sendActualTable(player, message, calculateTotalPoints(player));
   } else {
     return sendNotInGame(message);
   }
@@ -146,7 +162,10 @@ const addOption = (option) => (message) => {
       );
 
     const result = game.playerTurn.savedDices.map((dice) => dice.diceResult);
-    const resultOptions = options(result, usedOptions(game, message.author.id));
+    const resultOptions = options(
+      [...result].sort(),
+      usedOptions(game, message.author.id)
+    );
 
     const player = findPlayer(game, message.author.id);
 

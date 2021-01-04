@@ -1,5 +1,5 @@
 const bot = require('../bot.js');
-const { ROLL_REACTIONS } = require('../constants/reactions.js');
+const { ROLL_REACTIONS, ROLL_LETTERS } = require('../constants/reactions.js');
 const { TABLE_OPTIONS } = require('../constants/tableOptions.js');
 const { calculatePoints } = require('./generala.js');
 
@@ -30,33 +30,37 @@ const sendGameMessage = async (message) => {
         {
           name: 'Join the game!',
           value: 'React with 🤚',
-          inline: true,
-        },
-        {
-          name: '\u200b',
-          value: '\u200b',
-          inline: true,
         },
         {
           name: 'Start the game!',
           value: 'Start with ▶',
-          inline: true,
+        },
+        {
+          name: 'Cancelar creación',
+          value: 'Cancelá con 🔴',
         },
       ],
     }
   );
   gameCreationMessage.react('🤚');
   gameCreationMessage.react('▶');
+  gameCreationMessage.react('🔴');
   return gameCreationMessage;
 };
 
-const sendActualTable = (player, message) => {
+const sendActualTable = (player, message, totalPoints) => {
   return message.author.send({
-    embed: createEmbed('Here is your table!', {
-      fields: Object.entries(player.table).map(([option, value]) => ({
-        name: option,
-        value: value === undefined ? 'not used yet!' : value,
-      })),
+    embed: createEmbed('Aca esta tu tabla!', {
+      fields: [
+        ...Object.entries(player.table).map(([option, value]) => ({
+          name: option,
+          value: value === undefined ? 'No fue usado todavia!' : value,
+        })),
+        {
+          name: 'Puntos totales:',
+          value: `\`\`\`${totalPoints}\`\`\``,
+        },
+      ],
     }),
   });
 };
@@ -94,14 +98,12 @@ const sendRollMessage = async (message, game, result, options, usedOptions) => {
 
   const rollMessage = await sendMessageTo(
     message.channel.id,
-    `${game.playerTurn.user} rolled!`,
+    `${game.playerTurn.user} tiro los dados! Cantidad de veces tiradas: ${game.playerTurn.rolledTimes}`,
     {
       fields: [
         ...result.map((val, index) => ({
-          name: `Dice ${index + 1}: \`\`\`${val}\`\`\` `,
-          value: game.playerTurn.savedDices[index].fixed
-            ? 'This dice is fixed'
-            : `React with ${ROLL_REACTIONS[index]} to keep the dice!`,
+          name: `Dado ${ROLL_LETTERS[index]}: \`\`\`${val}\`\`\` `,
+          value: `Reaccioná con ${ROLL_REACTIONS[index]} para agarrar el dado!`,
           // inline: true
         })),
         {
@@ -119,9 +121,9 @@ const sendRollMessage = async (message, game, result, options, usedOptions) => {
   return rollMessage;
 };
 
-const reactNumbers = (message, game) => {
-  ROLL_REACTIONS.forEach(async (reaction, index) => {
-    if (!game.playerTurn.savedDices[index].saved) await message.react(reaction);
+const reactNumbers = (message) => {
+  ROLL_REACTIONS.forEach(async (reaction) => {
+    await message.react(reaction);
   });
 };
 
